@@ -59,28 +59,34 @@ if map_loaded:
                         height: 12px; border-radius: 10px; margin-bottom: 15px;"></div>
         """, unsafe_allow_html=True)
         
-        # 2. 지도 초기 설정 (중복 제거!)
-        center_lat, center_lon = merged.geometry.centroid.y.mean(), merged.geometry.centroid.x.mean()
+        # 2. 지도 초기 설정
+        # 1. 맵 생성
         m = folium.Map(
             location=[center_lat, center_lon], 
             zoom_start=11.3,         
             tiles="CartoDB positron",
             dragging=True,           
-            scrollWheelZoom=True,    
-            zoom_control=True,
-            gestureHandling=True     # 👈 [핵심] 제스처 모드 켜기
+            scrollWheelZoom=False,   # 초기엔 꺼둡니다.
+            zoom_control=True
         )
         
-        # 2. [마법의 주문] 외부 플러그인(JS, CSS)을 지도 머릿말(Header)에 강제 주입
+        # 2. 외부 스크립트 파일 가져오기
         from folium import Element
+        m.get_root().header.add_child(Element('<link rel="stylesheet" href="https://unpkg.com/leaflet-gesture-handling/dist/leaflet-gesture-handling.min.css" type="text/css">'))
+        m.get_root().header.add_child(Element('<script src="https://unpkg.com/leaflet-gesture-handling/dist/leaflet-gesture-handling.min.js"></script>'))
         
-        m.get_root().header.add_child(Element(
-            '<link rel="stylesheet" href="https://unpkg.com/leaflet-gesture-handling/dist/leaflet-gesture-handling.min.css" type="text/css">'
-        ))
-        m.get_root().header.add_child(Element(
-            '<script src="https://unpkg.com/leaflet-gesture-handling/dist/leaflet-gesture-handling.min.js"></script>'
-        ))
-        
+        # 3. 🚨 [새로 추가할 핵심 코드] 1초 뒤에 지도의 고유 이름(m.get_name)을 찾아가서 강제로 제스처 모드를 켭니다!
+        trigger_js = f"""
+        <script>
+            setTimeout(function() {{
+                if (typeof L.GestureHandling !== 'undefined') {{
+                    {m.get_name()}.addHandler('gestureHandling', L.GestureHandling);
+                    {m.get_name()}.gestureHandling.enable();
+                }}
+            }}, 1000);
+        </script>
+        """
+        m.get_root().html.add_child(Element(trigger_js))
         # 3. 지도 붉은색 칠하기
         choro = folium.Choropleth(
             geo_data=merged, data=merged,
