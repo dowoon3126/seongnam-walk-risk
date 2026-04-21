@@ -116,8 +116,21 @@ if map_loaded:
                 
                 fig = go.Figure()
                 fig.add_trace(go.Scatterpolar(r=values, theta=categories, fill='toself', fillcolor='rgba(255, 0, 0, 0.2)', line_color='red'))
-                fig.update_layout(polar=dict(radialaxis=dict(visible=True, range=[0, 100])), showlegend=False, margin=dict(l=20, r=20, t=20, b=20), height=300)
-                st.plotly_chart(fig, use_container_width=True)
+                
+                # 1. 그래프 고정 및 여백 넓히기
+                fig.update_layout(
+                    polar=dict(
+                        radialaxis=dict(visible=True, range=[0, 100], fixedrange=True), # 🔒 축 확대/축소 고정
+                        angularaxis=dict(fixedrange=True)                               # 🔒 축 회전 고정
+                    ), 
+                    showlegend=False, 
+                    dragmode=False,                           # 🔒 마우스 드래그 완전 차단
+                    margin=dict(l=80, r=80, t=40, b=40),      # 👈 좌우 여백(l, r)을 80으로 늘려서 글자 잘림 방지!
+                    height=350
+                )
+                
+                # 2. 우측 상단에 뜨는 거슬리는 Plotly 기본 메뉴바(사진기 모양 등) 아예 숨기기
+                st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
                 
                 # 맞춤형 처방전 로직
                 st.markdown("맞춤형 정책 제언")
