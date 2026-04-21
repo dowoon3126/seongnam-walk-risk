@@ -32,6 +32,7 @@ def load_map():
     return gdf
 
 df = load_data()
+df.columns = df.columns.str.strip()
 try:
     gdf = load_map()
     map_loaded = True
