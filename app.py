@@ -148,7 +148,7 @@ if map_loaded:
                     line_color='red'
                 ))
                 
-                # 차트 배경색 설정 및 0~100 라벨링 복구
+                # 차트 배경색 설정 및 100을 제외한 0~80 라벨링 적용
                 fig.update_layout(
                     paper_bgcolor='rgba(0,0,0,0)',  # 차트 바깥쪽 배경 투명 (#0E1117이 비쳐보임)
                     polar=dict(
@@ -156,8 +156,9 @@ if map_loaded:
                         radialaxis=dict(
                             visible=True, 
                             range=[0, 100],
-                            showticklabels=True,            # [수정] 0~100 라벨링 다시 켜기
-                            tickfont=dict(color='#cccccc')  # [추가] 어두운 배경에 잘 보이도록 숫자 색상을 밝은 회색으로 변경
+                            tickvals=[0, 20, 40, 60, 80],   # [수정] 0부터 80까지만 표시 (100 제외)
+                            showticklabels=True,
+                            tickfont=dict(color='#cccccc')  # 어두운 배경에 잘 보이도록 숫자 색상을 밝은 회색으로 변경
                         ),
                         angularaxis=dict(
                             color='white'           # 항목 이름 글자색을 흰색으로 유지
