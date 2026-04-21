@@ -117,7 +117,7 @@ if map_loaded:
                 
                 fig = go.Figure()
                 
-                # 1. 차트 그리기 (지저분한 텍스트 옵션 싹 제거!)
+                # 1. 차트 그리기
                 fig.add_trace(go.Scatterpolar(
                     r=values, 
                     theta=categories, 
@@ -126,24 +126,24 @@ if map_loaded:
                     line_color='red'
                 ))
                 
-                # 2. 글자 크기 및 극한의 여백 확보 (잘림 방지 유지)
+                # 2. 💡 텍스트 & 숫자 디자인 완전 개편 (진하고 굵게!)
                 fig.update_layout(
                     polar=dict(
                         radialaxis=dict(
                             visible=True, 
                             range=[0, 100], 
-                            tickfont=dict(color='#cccccc', size=10) # 배경의 점수 가이드라인은 연하게
+                            tickfont=dict(color='#333333', size=11, weight='bold') # 👈 [수정] 0~100 기준 숫자를 진한 먹색(#333333)과 굵은 글씨로!
                         ),
                         angularaxis=dict(
-                            tickfont=dict(color='black', size=11, weight='bold') # 👈 축 끝에 붙는 글씨를 까맣고 또렷하게 부활!
+                            tickfont=dict(color='#000000', size=12, weight='bold') # 👈 [수정] 바깥쪽 글씨를 완전한 검은색(#000000)으로 더 또렷하게!
                         )
                     ), 
                     showlegend=False, 
-                    margin=dict(l=90, r=90, t=40, b=40), # 좌우 여백을 90으로 넓게 찢어서 긴 글씨가 쉴 공간 마련
+                    margin=dict(l=90, r=90, t=40, b=40), 
                     height=350
                 )
                 
-                # 3. 안전한 고정 모드로 출력
+                # 3. 고정 모드 출력
                 st.plotly_chart(fig, use_container_width=True, config={
                     'displayModeBar': False, 
                     'staticPlot': True       
