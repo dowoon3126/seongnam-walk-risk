@@ -63,15 +63,34 @@ if map_loaded:
       # 1. 지도의 중심점 계산하기
         center_lat, center_lon = merged.geometry.centroid.y.mean(), merged.geometry.centroid.x.mean()
         
-        # 2. 맵 생성 (이동 금지, 스크롤 쾌적!)
+        # 2. 맵 생성 
         m = folium.Map(
             location=[center_lat, center_lon], 
             zoom_start=11.3,         
             tiles="CartoDB positron",
-            dragging=False,          # 👈 [핵심] 지도 이동 금지! (모바일 스크롤 완벽 보장)
-            scrollWheelZoom=False,   # ☝️ 휠 줌 금지 (모바일 스크롤 완벽 보장)
-            zoom_control=True        # 👈 + / - 줌 버튼만 살려둠 (세부 확대용)
+            dragging=False,          # 👈 기본 상태는 묶어둡니다 (스크롤 쾌적)
+            scrollWheelZoom=False,   
+            zoom_control=True        # 👈 + / - 줌 버튼 살려둠
         )
+        
+        # 3. 💡 [비기] 질문자님의 아이디어를 구현한 초경량 스크립트!
+        from folium import Element
+        zoom_script = f"""
+        <script>
+            setTimeout(function() {{
+                var map_obj = {m.get_name()};
+                map_obj.on('zoomend', function() {{
+                    if (map_obj.getZoom() > 11.3) {{
+                        map_obj.dragging.enable(); // 🔓 확대하면 드래그 봉인 해제!
+                    }} else {{
+                        map_obj.dragging.disable(); // 🔒 원래 크기면 다시 스크롤 보호 모드!
+                        map_obj.setView([{center_lat}, {center_lon}], 11.3); // 🎯 중앙으로 예쁘게 원상복구
+                    }}
+                }});
+            }}, 500);
+        </script>
+        """
+        m.get_root().html.add_child(Element(zoom_script))
         
         # 3. 지도 붉은색 칠하기
         choro = folium.Choropleth(
