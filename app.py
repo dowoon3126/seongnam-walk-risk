@@ -6,9 +6,9 @@ from streamlit_folium import st_folium
 import plotly.graph_objects as go
 
 # 1. 페이지 기본 설정
-st.set_page_config(page_title="성남시 보행 위험도 대시보드", page_icon="🚨", layout="wide")
-st.header("🚨 성남시 보행 위험도 대시보드 (지도 클릭형)")
-st.info("👇 지도에서 동네를 클릭하고 아래로 스크롤하여 진단서를 확인하세요!")
+st.set_page_config(page_title="성남시 보행 위험도 대시보드", layout="wide")
+st.header("성남시 보행 위험도 대시보드")
+st.info("지도에서 동네를 클릭하고 아래로 스크롤하여 진단서를 확인하세요!")
 
 # 2. 데이터 불러오기 (한글 깨짐 방지)
 @st.cache_data
@@ -52,8 +52,8 @@ if map_loaded:
         # 1. 폰 화면에 맞춰 자동으로 늘어나는 예쁜 컬러바 그리기
         st.markdown("""
             <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: bold; color: #555; margin-bottom: 5px;">
-                <span>🟢 안전 구역</span>
-                <span>🚨 위험 구역</span>
+                <span>안전 구역</span>
+                <span>위험 구역</span>
             </div>
             <div style="background: linear-gradient(to right, #fee5d9, #fcae91, #fb6a4a, #de2d26, #a50f15); 
                         height: 12px; border-radius: 10px; margin-bottom: 15px;"></div>
@@ -107,7 +107,7 @@ if map_loaded:
             if len(match_df) > 0:
                 dong_data = match_df.iloc[0]
                 
-                st.subheader(f"📌 [{clicked_dong}] 진단서")
+                st.subheader(f"[{clicked_dong}] 진단서")
                 st.write(f"**종합 위험도 {dong_data['위험도 순위']}위** ({dong_data['최종 보행 위험도 점수']}점)")
                 
                 # 방사형 차트
@@ -122,12 +122,12 @@ if map_loaded:
                 # 맞춤형 처방전 로직
                 st.markdown("### 💡 맞춤형 정책 제언")
                 if dong_data['안전 시설 밀도(100점)'] < 30:
-                    st.error("🚨 **[안전 비상]** 제설함 및 보행자 펜스 확충 시급")
+                    st.error("**[안전 비상]** 제설함 및 보행자 펜스 확충 시급")
                 if dong_data['평균 기울기(100점)'] >= 70:
-                    st.warning("⛰️ **[지형 한계]** 열선(발열매트) 설치 우선 검토")
+                    st.warning("**[지형 한계]** 열선(발열매트) 설치 우선 검토")
                 if dong_data['골목길 비율(100점)'] >= 80:
-                    st.warning("⚠️ **[보차혼용]** 미끄럼 방지 포장 및 스마트 보안등 필요")
+                    st.warning("**[보차혼용]** 미끄럼 방지 포장 및 스마트 보안등 필요")
                 if dong_data['안전 시설 밀도(100점)'] >= 50 and dong_data['평균 기울기(100점)'] < 50:
-                    st.success("✅ 인프라 양호 구역 (현행 유지보수 집중)")
+                    st.success("인프라 양호 구역 (현행 유지보수 집중)")
             else:
                 st.warning(f"선택하신 '{clicked_dong}' 데이터가 성적표에 없습니다.")
