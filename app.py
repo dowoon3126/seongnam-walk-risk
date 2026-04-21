@@ -4,6 +4,7 @@ import geopandas as gpd
 import folium
 from streamlit_folium import st_folium
 import plotly.graph_objects as go
+from folium.plugins import Fullscreen
 
 # 1. 페이지 기본 설정
 st.set_page_config(page_title="성남시 보행 위험도 대시보드", page_icon="🚨", layout="wide")
@@ -68,10 +69,18 @@ if map_loaded:
             location=[center_lat, center_lon], 
             zoom_start=11.3,         
             tiles="CartoDB positron",
-            dragging=False,          # 👈 기본 상태는 묶어둡니다 (스크롤 쾌적)
-            scrollWheelZoom=False,   
-            zoom_control=True        # 👈 + / - 줌 버튼 살려둠
+            dragging=True,           # 전체 화면에서는 드래그가 되는 게 편합니다!
+            scrollWheelZoom=True,
+            zoom_control=True
         )
+
+        # 💡 [핵심] 전체 화면 버튼 추가
+        Fullscreen(
+            position='topright',      # 버튼 위치 (우측 상단)
+            title='전체 화면 보기',     # 마우스 올렸을 때 문구
+            title_cancel='나가기',    # 전체 화면 끌 때 문구
+            force_separate_button=True # 독립된 버튼으로 표시
+        ).add_to(m)
         
         # 3. 지도 붉은색 칠하기
         choro = folium.Choropleth(
