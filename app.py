@@ -86,8 +86,8 @@ if map_loaded:
             location=[center_lat, center_lon], 
             zoom_start=11.3,         
             tiles="CartoDB positron",
-            dragging=False,          # 스크롤 방해 금지 (모바일 쾌적)
-            scrollWheelZoom=False,   
+            dragging=True,
+            scrollWheelZoom=True,   
             zoom_control=True        # 우측 상단 줌 버튼 유지
         )
         
