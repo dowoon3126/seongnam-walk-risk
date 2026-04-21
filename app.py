@@ -114,20 +114,28 @@ if map_loaded:
                 categories = ['평균 기울기(100점)', '골목길 비율(100점)', '교통약자 거주 인구 밀도(100점)', '교통약자 유발 시설 밀도(100점)', '안전 시설 밀도(100점)']
                 values = [dong_data[c] for c in categories]
                 
+                # 방사형 차트
+                categories = ['평균 기울기(100점)', '골목길 비율(100점)', '교통약자 거주 인구 밀도(100점)', '교통약자 유발 시설 밀도(100점)', '안전 시설 밀도(100점)']
+                values = [dong_data[c] for c in categories]
+                
                 fig = go.Figure()
                 fig.add_trace(go.Scatterpolar(r=values, theta=categories, fill='toself', fillcolor='rgba(255, 0, 0, 0.2)', line_color='red'))
                 
-                # 1. 그래프 고정 및 여백 넓히기
+                # 1. 100점 고정 및 글자 잘림 방지 (에러 유발 코드 제거)
                 fig.update_layout(
                     polar=dict(
-                        radialaxis=dict(visible=True, range=[0, 100], fixedrange=True), # 🔒 축 확대/축소 고정
-                        angularaxis=dict(fixedrange=True)                               # 🔒 축 회전 고정
+                        radialaxis=dict(visible=True, range=[0, 100]) # 100점 만점으로 축 범위 고정
                     ), 
                     showlegend=False, 
-                    dragmode=False,                           # 🔒 마우스 드래그 완전 차단
-                    margin=dict(l=80, r=80, t=40, b=40),      # 👈 좌우 여백(l, r)을 80으로 늘려서 글자 잘림 방지!
+                    margin=dict(l=80, r=80, t=40, b=40), # 👈 좌우 여백을 80으로 늘려서 긴 글자도 다 보이게!
                     height=350
                 )
+                
+                # 2. [가장 중요] 터치 조작 자체를 완전히 차단해버리는 안전한 방법
+                st.plotly_chart(fig, use_container_width=True, config={
+                    'displayModeBar': False, # 거슬리는 상단 메뉴바 숨김
+                    'staticPlot': True       # 🔒 차트를 아예 찌그러지지 않는 이미지 모드로 고정!
+                })
                 
                 # 2. 우측 상단에 뜨는 거슬리는 Plotly 기본 메뉴바(사진기 모양 등) 아예 숨기기
                 st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
