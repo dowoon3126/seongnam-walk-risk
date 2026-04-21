@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 import geopandas as gpd
 import folium
-from folium.plugins import GestureHandling
 from streamlit_folium import st_folium
 import plotly.graph_objects as go
 
@@ -66,12 +65,21 @@ if map_loaded:
             location=[center_lat, center_lon], 
             zoom_start=11.3,         
             tiles="CartoDB positron",
-            dragging=True,          
-            scrollWheelZoom=True,   
-            zoom_control=True       
+            dragging=True,           
+            scrollWheelZoom=True,    
+            zoom_control=True,
+            gestureHandling=True     # 👈 [핵심] 제스처 모드 켜기
         )
-
-        GestureHandling().add_to(m)
+        
+        # 2. [마법의 주문] 외부 플러그인(JS, CSS)을 지도 머릿말(Header)에 강제 주입
+        from folium import Element
+        
+        m.get_root().header.add_child(Element(
+            '<link rel="stylesheet" href="https://unpkg.com/leaflet-gesture-handling/dist/leaflet-gesture-handling.min.css" type="text/css">'
+        ))
+        m.get_root().header.add_child(Element(
+            '<script src="https://unpkg.com/leaflet-gesture-handling/dist/leaflet-gesture-handling.min.js"></script>'
+        ))
         
         # 3. 지도 붉은색 칠하기
         choro = folium.Choropleth(
