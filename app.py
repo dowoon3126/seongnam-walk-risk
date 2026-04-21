@@ -7,35 +7,8 @@ import plotly.graph_objects as go
 
 # 1. 페이지 기본 설정
 st.set_page_config(page_title="성남시 보행 위험도 대시보드", layout="wide")
-# 1. 배경을 강제로 하얀색으로 고정하는 CSS
-# app.py 상단에 넣을 여백 제거 및 다크 모드 통합 코드
-st.markdown("""
-<style>
-    /* 1. 전체 여백 설정 */
-    .block-container {
-        padding-top: 2rem !important;
-        padding-left: 1rem !important;
-        padding-right: 1rem !important;
-    }
-
-    /* 2. 제목: 크기 키우고 아래 박스와의 간격 제거 */
-    h2 {
-        margin-top: 0px !important;
-        margin-bottom: -10px !important; /* 👈 박스와의 간격을 좁히기 위해 마이너스 마진 */
-        padding-bottom: 0px !important;
-        font-size: 30px !important;      /* 👈 제목 크기 확대 */
-        color: white !important;
-        font-weight: bold !important;
-    }
-
-    /* 3. 안내 박스: 제목 쪽으로 바짝 붙이기 */
-    .stAlert {
-        margin-top: 0px !important;      
-        padding: 10px !important;
-    }
-</style>
-""", unsafe_allow_html=True)
-st.info("지도 상의 지역을 클릭하시면 하단에 맞춤형 분석 리포트가 생성됩니다.")
+st.header("성남시 보행 위험도 대시보드")
+st.info("👇 지도에서 동네를 클릭하고 아래로 스크롤하여 진단서를 확인하세요!")
 
 # 2. 데이터 불러오기 (한글 깨짐 방지)
 @st.cache_data
@@ -59,12 +32,11 @@ def load_map():
     return gdf
 
 df = load_data()
-df.columns = df.columns.str.strip()
 try:
     gdf = load_map()
     map_loaded = True
 except Exception as e:
-    st.error("'BND_ADM_DONG_PG.shp' 파일과 짝꿍 파일들(.shx, .dbf, .prj)이 같은 폴더에 있는지 확인해주세요!")
+    st.error("⚠️ 'BND_ADM_DONG_PG.shp' 파일과 짝꿍 파일들(.shx, .dbf, .prj)이 같은 폴더에 있는지 확인해주세요!")
     map_loaded = False
 
 if map_loaded:
@@ -79,9 +51,9 @@ if map_loaded:
     with col_map:
         # 1. 폰 화면에 맞춰 자동으로 늘어나는 예쁜 컬러바 그리기
         st.markdown("""
-            <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: bold; color: #ffffff; margin-bottom: 5px;">
-                <span>안전 구역</span>
-                <span>위험 구역</span>
+            <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: bold; color: #555; margin-bottom: 5px;">
+                <span>🟢 안전 구역</span>
+                <span>🚨 위험 구역</span>
             </div>
             <div style="background: linear-gradient(to right, #fee5d9, #fcae91, #fb6a4a, #de2d26, #a50f15); 
                         height: 12px; border-radius: 10px; margin-bottom: 15px;"></div>
@@ -138,59 +110,30 @@ if map_loaded:
                 st.subheader(f"[{clicked_dong}] 진단서")
                 st.write(f"**종합 위험도 {dong_data['위험도 순위']}위** ({dong_data['최종 보행 위험도 점수']}점)")
                 
-               # 방사형 차트 데이터 준비
+                # 방사형 차트
                 categories = ['평균 기울기', '골목길 비율', '교통약자 거주 인구 밀도', '교통약자 유발 시설 밀도', '안전 시설 밀도']
                 values = [dong_data[c] for c in categories]
                 
-                # 💡 [핵심] 마지막 점과 첫 점을 잇기 위해 첫 번째 데이터를 끝에 추가합니다.
-                categories = categories + [categories[0]]
-                values = values + [values[0]]
-                
                 fig = go.Figure()
+                fig.add_trace(go.Scatterpolar(r=values, theta=categories, fill='toself', fillcolor='rgba(255, 0, 0, 0.2)', line_color='red'))
                 
-                # 차트 그리기
-                fig.add_trace(go.Scatterpolar(
-                    r=values, 
-                    theta=categories, 
-                    fill='toself', 
-                    fillcolor='rgba(255, 0, 0, 0.2)', 
-                    line_color='red'
-                ))
-                
-                # 2. 💡 텍스트 & 숫자 디자인 완전 개편 (진하고 굵게!)
+                # 1. 100점 고정 및 글자 잘림 방지
                 fig.update_layout(
                     polar=dict(
-                        radialaxis=dict(
-                            visible=True, 
-                            range=[0, 100], 
-                            # 1. 💡 숫자를 표시할 지점만 명시 (100 제외)
-                            tickvals=[0, 20, 40, 60, 80], 
-                            # 2. 💡 각 지점에 써줄 글자 명시
-                            ticktext=['0', '20', '40', '60', '80'],
-                            # 3. 💡 핵심: 100 위치에 자동으로 붙는 마지막 라벨을 강제로 숨김
-                            showticklabels=True,
-                            # 4. 스타일 설정
-                            tickfont=dict(color='#333333', size=11, weight='bold'),
-                            gridcolor='#eeeeee',
-                            # 마지막 눈금선이 튀어나오지 않게 설정
-                            ticks=""
-                        ),
-                        angularaxis=dict(
-                            tickfont=dict(color='#ffffff', size=10, weight='bold')
-                        )
+                        radialaxis=dict(visible=True, range=[0, 100]) # 100점 만점으로 축 범위 고정
                     ), 
                     showlegend=False, 
-                    margin=dict(l=90, r=90, t=40, b=40), 
+                    margin=dict(l=80, r=80, t=40, b=40), # 좌우 여백 확보
                     height=350
                 )
                 
-                # 3. 고정 모드 출력
+                # 2. 터치 조작 자체를 완전히 차단해버리는 안전한 방법
                 st.plotly_chart(fig, use_container_width=True, config={
-                    'displayModeBar': False, 
-                    'staticPlot': True       
+                    'displayModeBar': False, # 거슬리는 상단 메뉴바 숨김
+                    'staticPlot': True       # 🔒 차트를 아예 찌그러지지 않는 이미지 모드로 고정!
                 })
-
-            # 맞춤형 처방전 로직 (아이콘 완전히 제거)
+                
+                # 맞춤형 처방전 로직 (아이콘 완전히 제거)
                 st.markdown("맞춤형 정책 제언")
                 if dong_data['안전 시설 밀도'] < 30:
                     st.error("**[안전 비상]** 제설함 및 보행자 펜스 확충 시급")
