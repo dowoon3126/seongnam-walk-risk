@@ -12,7 +12,7 @@ st.markdown("""
     <style>
     /* 메인 배경 하얀색 */
     .stApp {
-        background-color: #FFFFFF;
+        background-color: #0E1117;
     }
     /* 상단 헤더 영역 하얀색 */
     header[data-testid="stHeader"] {
