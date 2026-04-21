@@ -132,11 +132,17 @@ if map_loaded:
                         radialaxis=dict(
                             visible=True, 
                             range=[0, 100], 
-                            # 👈 [핵심] 0부터 80까지만 숫자를 표시하고 100은 리스트에서 뺍니다.
+                            # 1. 💡 숫자를 표시할 지점만 명시 (100 제외)
                             tickvals=[0, 20, 40, 60, 80], 
+                            # 2. 💡 각 지점에 써줄 글자 명시
                             ticktext=['0', '20', '40', '60', '80'],
+                            # 3. 💡 핵심: 100 위치에 자동으로 붙는 마지막 라벨을 강제로 숨김
+                            showticklabels=True,
+                            # 4. 스타일 설정
                             tickfont=dict(color='#333333', size=11, weight='bold'),
-                            gridcolor='#eeeeee' # 눈금선은 100까지 그려지지만 숫자만 안 보임
+                            gridcolor='#eeeeee',
+                            # 마지막 눈금선이 튀어나오지 않게 설정
+                            ticks=""
                         ),
                         angularaxis=dict(
                             tickfont=dict(color='#000000', size=12, weight='bold')
