@@ -52,7 +52,7 @@ if map_loaded:
     with col_map:
         # 1. 폰 화면에 맞춰 자동으로 늘어나는 예쁜 컬러바 그리기
         st.markdown("""
-            <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: bold; color: #555; margin-bottom: 5px;">
+            <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: bold; color: #ffffff; margin-bottom: 5px;">
                 <span>안전 구역</span>
                 <span>위험 구역</span>
             </div>
