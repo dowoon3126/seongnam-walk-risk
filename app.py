@@ -73,7 +73,7 @@ if map_loaded:
             scrollWheelZoom=False,   
             zoom_control=False       # 🔒 버튼도 숨겨서 깔끔하게
         )
-        with col_map:
+        
         # 지도 제목과 안내
         st.subheader("🗺️ 성남시 보행 위험 지도")
         
