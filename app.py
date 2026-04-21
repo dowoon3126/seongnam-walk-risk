@@ -114,10 +114,6 @@ if map_loaded:
                 categories = ['평균 기울기(100점)', '골목길 비율(100점)', '교통약자 거주 인구 밀도(100점)', '교통약자 유발 시설 밀도(100점)', '안전 시설 밀도(100점)']
                 values = [dong_data[c] for c in categories]
                 
-                # 방사형 차트
-                categories = ['평균 기울기(100점)', '골목길 비율(100점)', '교통약자 거주 인구 밀도(100점)', '교통약자 유발 시설 밀도(100점)', '안전 시설 밀도(100점)']
-                values = [dong_data[c] for c in categories]
-                
                 fig = go.Figure()
                 fig.add_trace(go.Scatterpolar(r=values, theta=categories, fill='toself', fillcolor='rgba(255, 0, 0, 0.2)', line_color='red'))
                 
