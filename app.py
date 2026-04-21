@@ -60,35 +60,19 @@ if map_loaded:
         """, unsafe_allow_html=True)
         
         # 2. 지도 초기 설정
-        # 1. 맵 생성
+      # 1. 지도의 중심점 계산하기
         center_lat, center_lon = merged.geometry.centroid.y.mean(), merged.geometry.centroid.x.mean()
         
+        # 2. 맵 생성 (이동 금지, 스크롤 쾌적!)
         m = folium.Map(
             location=[center_lat, center_lon], 
             zoom_start=11.3,         
             tiles="CartoDB positron",
-            dragging=True,           
-            scrollWheelZoom=False,   # 초기엔 꺼둡니다.
-            zoom_control=True
+            dragging=False,          # 👈 [핵심] 지도 이동 금지! (모바일 스크롤 완벽 보장)
+            scrollWheelZoom=False,   # ☝️ 휠 줌 금지 (모바일 스크롤 완벽 보장)
+            zoom_control=True        # 👈 + / - 줌 버튼만 살려둠 (세부 확대용)
         )
         
-        # 2. 외부 스크립트 파일 가져오기
-        from folium import Element
-        m.get_root().header.add_child(Element('<link rel="stylesheet" href="https://unpkg.com/leaflet-gesture-handling/dist/leaflet-gesture-handling.min.css" type="text/css">'))
-        m.get_root().header.add_child(Element('<script src="https://unpkg.com/leaflet-gesture-handling/dist/leaflet-gesture-handling.min.js"></script>'))
-        
-        # 3. 🚨 [새로 추가할 핵심 코드] 1초 뒤에 지도의 고유 이름(m.get_name)을 찾아가서 강제로 제스처 모드를 켭니다!
-        trigger_js = f"""
-        <script>
-            setTimeout(function() {{
-                if (typeof L.GestureHandling !== 'undefined') {{
-                    {m.get_name()}.addHandler('gestureHandling', L.GestureHandling);
-                    {m.get_name()}.gestureHandling.enable();
-                }}
-            }}, 1000);
-        </script>
-        """
-        m.get_root().html.add_child(Element(trigger_js))
         # 3. 지도 붉은색 칠하기
         choro = folium.Choropleth(
             geo_data=merged, data=merged,
