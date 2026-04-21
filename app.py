@@ -49,7 +49,6 @@ if map_loaded:
     col_map, col_info = st.columns([1.5, 1])
     
     with col_map:
-        st.subheader("🗺️ 성남시 인터랙티브 맵")
         center_lat, center_lon = merged.geometry.centroid.y.mean(), merged.geometry.centroid.x.mean()
         m = folium.Map(
             location=[center_lat, center_lon], 
@@ -147,7 +146,5 @@ if map_loaded:
                     st.success("✅ 인프라 양호 구역 (현행 유지보수 집중)")
             else:
                 st.warning(f"선택하신 '{clicked_dong}' 데이터가 성적표에 없습니다.")
-        else:
-            st.info("왼쪽 지도에서 궁금한 동네를 클릭해보세요!")
 
 # python3 -m streamlit run app.py 실행
