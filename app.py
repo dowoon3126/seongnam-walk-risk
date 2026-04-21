@@ -8,7 +8,7 @@ import plotly.graph_objects as go
 # 1. 페이지 기본 설정
 st.set_page_config(page_title="성남시 보행 위험도 대시보드", page_icon="🚨", layout="wide")
 st.header("🚨 성남시 보행 위험도 대시보드 (지도 클릭형)")
-st.info("아래 지도에서 동네를 클릭하시면 오른쪽에서 맞춤형 진단서가 켜집니다!")
+st.info("아래 지도에서 동네를 클릭하시면 맞춤형 진단서가 켜집니다!")
 
 # 2. 데이터 불러오기 (한글 깨짐 방지)
 @st.cache_data
