@@ -111,42 +111,35 @@ if map_loaded:
                 st.subheader(f"[{clicked_dong}] 진단서")
                 st.write(f"**종합 위험도 {dong_data['위험도 순위']}위** ({dong_data['최종 보행 위험도 점수']}점)")
                 
-                # 방사형 차트
-                # 1. 💡 줄바꿈 스킬: 데이터 찾는 이름(cols)과 화면에 보여줄 이름(labels)을 분리합니다!
-                # 방사형 차트
-                # 💡 원본 카테고리 이름(한 줄)을 그대로 사용합니다.
+               # 방사형 차트
                 categories = ['평균 기울기', '골목길 비율', '교통약자 거주 인구 밀도', '교통약자 유발 시설 밀도', '안전 시설 밀도']
                 values = [dong_data[c] for c in categories]
                 
                 fig = go.Figure()
                 
-                # 1. 차트 그리기 (검은색 점수 라벨 유지 + 점수 위치 안쪽으로 이동)
+                # 1. 차트 그리기 (지저분한 텍스트 옵션 싹 제거!)
                 fig.add_trace(go.Scatterpolar(
                     r=values, 
                     theta=categories, 
                     fill='toself', 
                     fillcolor='rgba(255, 0, 0, 0.2)', 
-                    line_color='red',
-                    mode='lines+markers+text',       
-                    text=[f"{v}점" for v in values],   
-                    textposition='bottom center',    # 👈 [위치 조정] 점수가 카테고리 글자와 겹치지 않게 차트 안쪽(아래)으로 내림
-                    textfont=dict(color='black', size=11, weight='bold') 
+                    line_color='red'
                 ))
                 
-                # 2. 글자 크기 축소 및 극한의 여백 확보
+                # 2. 글자 크기 및 극한의 여백 확보 (잘림 방지 유지)
                 fig.update_layout(
                     polar=dict(
                         radialaxis=dict(
                             visible=True, 
                             range=[0, 100], 
-                            tickfont=dict(color='#cccccc', size=10) # 배경 숫자는 연하게
+                            tickfont=dict(color='#cccccc', size=10) # 배경의 점수 가이드라인은 연하게
                         ),
                         angularaxis=dict(
-                            tickfont=dict(color='black', size=10)   # 👈 [크기 조정] 긴 글자가 안 튀어나가게 폰트 사이즈 10으로 축소
+                            tickfont=dict(color='black', size=11, weight='bold') # 👈 축 끝에 붙는 글씨를 까맣고 또렷하게 부활!
                         )
                     ), 
                     showlegend=False, 
-                    margin=dict(l=100, r=100, t=40, b=40),          # 👈 [여백 조정] 좌우 여백을 100까지 넉넉하게 찢어서 글자 보호!
+                    margin=dict(l=90, r=90, t=40, b=40), # 좌우 여백을 90으로 넓게 찢어서 긴 글씨가 쉴 공간 마련
                     height=350
                 )
                 
