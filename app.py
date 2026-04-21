@@ -4,12 +4,11 @@ import geopandas as gpd
 import folium
 from streamlit_folium import st_folium
 import plotly.graph_objects as go
-from folium.plugins import Fullscreen
 
 # 1. 페이지 기본 설정
 st.set_page_config(page_title="성남시 보행 위험도 대시보드", page_icon="🚨", layout="wide")
 st.header("🚨 성남시 보행 위험도 대시보드 (지도 클릭형)")
-st.info("아래 지도에서 동네를 클릭하시면 맞춤형 진단서가 켜집니다!")
+st.info("👇 지도에서 동네를 클릭하고 아래로 스크롤하여 진단서를 확인하세요!")
 
 # 2. 데이터 불러오기 (한글 깨짐 방지)
 @st.cache_data
@@ -60,36 +59,16 @@ if map_loaded:
                         height: 12px; border-radius: 10px; margin-bottom: 15px;"></div>
         """, unsafe_allow_html=True)
         
-        # 2. 지도 초기 설정
-      # 1. 지도의 중심점 계산하기
+        # 2. 지도의 중심점 계산 및 맵 생성 (모바일 스크롤 쾌적화)
         center_lat, center_lon = merged.geometry.centroid.y.mean(), merged.geometry.centroid.x.mean()
-        
-        # 2. 맵 생성 
         m = folium.Map(
             location=[center_lat, center_lon], 
             zoom_start=11.3,         
             tiles="CartoDB positron",
-            dragging=False,          # 🔒 평소엔 꽉 묶어서 스크롤 방해 금지
+            dragging=False,          # 🔒 스크롤 방해 금지 (모바일 쾌적)
             scrollWheelZoom=False,   
-            zoom_control=False       # 🔒 버튼도 숨겨서 깔끔하게
+            zoom_control=True        # 우측 상단 줌 버튼 유지
         )
-        
-        # 지도 제목과 안내
-        st.subheader("🗺️ 성남시 보행 위험 지도")
-        
-        # [핵심] 세련된 안내 문구 (에어비앤비 스타일)
-        st.markdown("""
-            <div style="background-color: #f0f2f6; padding: 10px; border-radius: 10px; text-align: center; margin-bottom: 10px;">
-                <small>📱 모바일 사용자님, 지도를 자유롭게 움직이려면 <br> 
-                오른쪽 하단의 <b>전체화면(⛶)</b> 아이콘을 눌러주세요!</small>
-            </div>
-        """, unsafe_allow_html=True)
-
-        # 전체화면 플러그인 추가
-        from folium.plugins import Fullscreen
-        Fullscreen(position='bottomright').add_to(m) # 오른쪽 아래에 배치
-        
-        map_output = st_folium(m, use_container_width=True, height=350)
         
         # 3. 지도 붉은색 칠하기
         choro = folium.Choropleth(
@@ -106,7 +85,7 @@ if map_loaded:
                 
         choro.add_to(m)
         
-        # 5. 클릭 인식을 위한 투명 레이어 (중복 제거!)
+        # 5. 클릭 인식을 위한 투명 레이어
         folium.GeoJson(
             merged,
             style_function=lambda x: {'fillColor': '#000', 'color':'#000', 'fillOpacity': 0.0, 'weight': 0},
@@ -114,7 +93,7 @@ if map_loaded:
             highlight_function=lambda x: {'weight':3, 'color':'#ff0000', 'fillOpacity': 0.2} 
         ).add_to(m)
         
-        # 6. 화면 출력 (중복 제거!)
+        # 6. 화면 출력 (단 한 번만 깔끔하게 실행!)
         map_output = st_folium(m, use_container_width=True, height=350)
         
     with col_info:
@@ -152,5 +131,3 @@ if map_loaded:
                     st.success("✅ 인프라 양호 구역 (현행 유지보수 집중)")
             else:
                 st.warning(f"선택하신 '{clicked_dong}' 데이터가 성적표에 없습니다.")
-
-# python3 -m streamlit run app.py 실행
