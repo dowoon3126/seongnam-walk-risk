@@ -69,18 +69,27 @@ if map_loaded:
             location=[center_lat, center_lon], 
             zoom_start=11.3,         
             tiles="CartoDB positron",
-            dragging=True,           # 전체 화면에서는 드래그가 되는 게 편합니다!
-            scrollWheelZoom=True,
-            zoom_control=True
+            dragging=False,          # 🔒 평소엔 꽉 묶어서 스크롤 방해 금지
+            scrollWheelZoom=False,   
+            zoom_control=False       # 🔒 버튼도 숨겨서 깔끔하게
         )
+        with col_map:
+        # 지도 제목과 안내
+        st.subheader("🗺️ 성남시 보행 위험 지도")
+        
+        # [핵심] 세련된 안내 문구 (에어비앤비 스타일)
+        st.markdown("""
+            <div style="background-color: #f0f2f6; padding: 10px; border-radius: 10px; text-align: center; margin-bottom: 10px;">
+                <small>📱 모바일 사용자님, 지도를 자유롭게 움직이려면 <br> 
+                오른쪽 하단의 <b>전체화면(⛶)</b> 아이콘을 눌러주세요!</small>
+            </div>
+        """, unsafe_allow_html=True)
 
-        # 💡 [핵심] 전체 화면 버튼 추가
-        Fullscreen(
-            position='topright',      # 버튼 위치 (우측 상단)
-            title='전체 화면 보기',     # 마우스 올렸을 때 문구
-            title_cancel='나가기',    # 전체 화면 끌 때 문구
-            force_separate_button=True # 독립된 버튼으로 표시
-        ).add_to(m)
+        # 전체화면 플러그인 추가
+        from folium.plugins import Fullscreen
+        Fullscreen(position='bottomright').add_to(m) # 오른쪽 아래에 배치
+        
+        map_output = st_folium(m, use_container_width=True, height=350)
         
         # 3. 지도 붉은색 칠하기
         choro = folium.Choropleth(
