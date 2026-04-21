@@ -7,8 +7,8 @@ import plotly.graph_objects as go
 
 # 1. 페이지 기본 설정
 st.set_page_config(page_title="성남시 보행 위험도 대시보드", page_icon="🚨", layout="wide")
-st.title("🚨 성남시 보행 위험도 대시보드 (지도 클릭형)")
-st.markdown("아래 지도에서 동네를 클릭하시면 오른쪽에서 맞춤형 진단서가 켜집니다!")
+st.header("🚨 성남시 보행 위험도 대시보드 (지도 클릭형)")
+st.info("아래 지도에서 동네를 클릭하시면 오른쪽에서 맞춤형 진단서가 켜집니다!")
 
 # 2. 데이터 불러오기 (한글 깨짐 방지)
 @st.cache_data
@@ -51,7 +51,14 @@ if map_loaded:
     with col_map:
         st.subheader("🗺️ 성남시 인터랙티브 맵")
         center_lat, center_lon = merged.geometry.centroid.y.mean(), merged.geometry.centroid.x.mean()
-        m = folium.Map(location=[center_lat, center_lon], zoom_start=11.5, tiles="CartoDB positron")
+        m = folium.Map(
+            location=[center_lat, center_lon], 
+            zoom_start=11,           # 11.5 -> 11로 축소 (성남시가 한눈에 쏙 들어옴)
+            tiles="CartoDB positron",
+            dragging=False,          # ☝️ 맵 이동 금지 (손가락으로 페이지 스크롤이 가능해짐!)
+            scrollWheelZoom=False,   # ☝️ 맵 줌 금지
+            zoom_control=False       # ☝️ 좌측 상단 +/- 버튼 숨기기 (모바일 화면을 더 넓게)
+        )
         
         # 붉은색 단계구분도 칠하기
         folium.Choropleth(
@@ -70,7 +77,7 @@ if map_loaded:
             highlight_function=lambda x: {'weight':3, 'color':'#ff0000', 'fillOpacity': 0.2} 
         ).add_to(m)
         
-        map_output = st_folium(m, use_container_width=True, height=500)
+        map_output = st_folium(m, use_container_width=True, height=400) 
         
     with col_info:
         clicked_dong = None
