@@ -5,10 +5,31 @@ import folium
 from streamlit_folium import st_folium
 import plotly.graph_objects as go
 
-# 1. 페이지 기본 설정
+# 1. 페이지 기본 설정 (와이드 레이아웃 유지)
 st.set_page_config(page_title="성남시 보행 위험도 대시보드", layout="wide")
-st.header("성남시 보행 위험도 대시보드")
-st.info("👇 지도에서 동네를 클릭하고 아래로 스크롤하여 진단서를 확인하세요!")
+
+# [수정 3 & 4] 강제 다크모드(블랙) 설정 및 상단 여백/제목 간격 축소
+st.markdown("""
+    <style>
+    /* 전체 배경을 검은색, 텍스트를 흰색으로 강제 고정 */
+    .stApp {
+        background-color: #000000;
+        color: #ffffff;
+    }
+    /* Streamlit 기본 상단 여백 줄이기 */
+    .block-container {
+        padding-top: 2rem !important;
+    }
+    /* HTML 요소들 글자색 흰색으로 강제 */
+    p, div, span, h1, h2, h3, h4, h5, h6 {
+        color: #ffffff;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+# [수정 4] st.header 대신 HTML/CSS를 사용해 제목과 아래 요소 간의 간격(margin) 최소화
+st.markdown('<h2 style="margin-top: 0px; margin-bottom: 5px;">성남시 보행 위험도 대시보드</h2>', unsafe_allow_html=True)
+st.info("지도에서 동네를 클릭하고 아래로 스크롤하여 진단서를 확인하세요!")
 
 # 2. 데이터 불러오기 (한글 깨짐 방지)
 @st.cache_data
@@ -36,11 +57,11 @@ try:
     gdf = load_map()
     map_loaded = True
 except Exception as e:
-    st.error("⚠️ 'BND_ADM_DONG_PG.shp' 파일과 짝꿍 파일들(.shx, .dbf, .prj)이 같은 폴더에 있는지 확인해주세요!")
+    st.error("'BND_ADM_DONG_PG.shp' 파일과 짝꿍 파일들(.shx, .dbf, .prj)이 같은 폴더에 있는지 확인해주세요!")
     map_loaded = False
 
 if map_loaded:
-    # 📌 코랩에서 찾았던 정확한 동네 이름 열(ADM_NM) 고정 적용!
+    # 코랩에서 찾았던 정확한 동네 이름 열(ADM_NM) 고정 적용!
     map_col = 'ADM_NM'
         
     # 지도와 데이터 병합
@@ -51,9 +72,9 @@ if map_loaded:
     with col_map:
         # 1. 폰 화면에 맞춰 자동으로 늘어나는 예쁜 컬러바 그리기
         st.markdown("""
-            <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: bold; color: #555; margin-bottom: 5px;">
-                <span>🟢 안전 구역</span>
-                <span>🚨 위험 구역</span>
+            <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: bold; color: #aaaaaa; margin-bottom: 5px;">
+                <span>안전 구역</span>
+                <span>위험 구역</span>
             </div>
             <div style="background: linear-gradient(to right, #fee5d9, #fcae91, #fb6a4a, #de2d26, #a50f15); 
                         height: 12px; border-radius: 10px; margin-bottom: 15px;"></div>
@@ -65,7 +86,7 @@ if map_loaded:
             location=[center_lat, center_lon], 
             zoom_start=11.3,         
             tiles="CartoDB positron",
-            dragging=False,          # 🔒 스크롤 방해 금지 (모바일 쾌적)
+            dragging=False,          # 스크롤 방해 금지 (모바일 쾌적)
             scrollWheelZoom=False,   
             zoom_control=True        # 우측 상단 줌 버튼 유지
         )
@@ -110,31 +131,50 @@ if map_loaded:
                 st.subheader(f"[{clicked_dong}] 진단서")
                 st.write(f"**종합 위험도 {dong_data['위험도 순위']}위** ({dong_data['최종 보행 위험도 점수']}점)")
                 
-                # 방사형 차트
+                # 방사형 차트 데이터 준비
                 categories = ['평균 기울기', '골목길 비율', '교통약자 거주 인구 밀도', '교통약자 유발 시설 밀도', '안전 시설 밀도']
                 values = [dong_data[c] for c in categories]
                 
-                fig = go.Figure()
-                fig.add_trace(go.Scatterpolar(r=values, theta=categories, fill='toself', fillcolor='rgba(255, 0, 0, 0.2)', line_color='red'))
+                # [수정 2] 마지막 빨간 선분을 연결하기 위해 첫 번째 데이터를 맨 끝에 복사해서 붙임 (도형 닫기)
+                categories_closed = categories + [categories[0]]
+                values_closed = values + [values[0]]
                 
-                # 1. 100점 고정 및 글자 잘림 방지
+                fig = go.Figure()
+                fig.add_trace(go.Scatterpolar(
+                    r=values_closed, 
+                    theta=categories_closed, 
+                    fill='toself', 
+                    fillcolor='rgba(255, 0, 0, 0.2)', 
+                    line_color='red'
+                ))
+                
+                # [수정 1 & 3] 차트 배경색을 다크 모드에 맞추고 100점 텍스트 숨기기
                 fig.update_layout(
+                    paper_bgcolor='rgba(0,0,0,0)',  # 차트 바깥쪽 배경 투명(검은 화면에 녹아들게)
                     polar=dict(
-                        radialaxis=dict(visible=True, range=[0, 100]) # 100점 만점으로 축 범위 고정
+                        bgcolor='#111111',          # 차트 안쪽 원 배경은 약간 어두운 회/검정
+                        radialaxis=dict(
+                            visible=True, 
+                            range=[0, 100],
+                            showticklabels=False    # [수정 1] 100, 50 같은 범위 표시 숫자 숨기기
+                        ),
+                        angularaxis=dict(
+                            color='white'           # 항목 이름(카테고리) 글자색을 흰색으로 변경
+                        )
                     ), 
                     showlegend=False, 
                     margin=dict(l=80, r=80, t=40, b=40), # 좌우 여백 확보
                     height=350
                 )
                 
-                # 2. 터치 조작 자체를 완전히 차단해버리는 안전한 방법
+                # 차트 출력
                 st.plotly_chart(fig, use_container_width=True, config={
                     'displayModeBar': False, # 거슬리는 상단 메뉴바 숨김
-                    'staticPlot': True       # 🔒 차트를 아예 찌그러지지 않는 이미지 모드로 고정!
+                    'staticPlot': True       # 🔒 차트를 찌그러지지 않는 이미지 모드로 고정!
                 })
                 
-                # 맞춤형 처방전 로직 (아이콘 완전히 제거)
-                st.markdown("맞춤형 정책 제언")
+                # 맞춤형 처방전 로직
+                st.markdown("**맞춤형 정책 제언**")
                 if dong_data['안전 시설 밀도'] < 30:
                     st.error("**[안전 비상]** 제설함 및 보행자 펜스 확충 시급")
                 if dong_data['평균 기울기'] >= 70:
@@ -143,5 +183,5 @@ if map_loaded:
                     st.warning("**[보차혼용]** 미끄럼 방지 포장 및 스마트 보안등 필요")
                 if dong_data['안전 시설 밀도'] >= 50 and dong_data['평균 기울기'] < 50:
                     st.success("인프라 양호 구역 (현행 유지보수 집중)")
-            else:
-                st.warning(f"선택하신 '{clicked_dong}' 데이터가 성적표에 없습니다.")
+        else:
+            st.warning(f"선택하신 '{clicked_dong}' 데이터가 성적표에 없습니다.")
