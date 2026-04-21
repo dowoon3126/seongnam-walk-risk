@@ -61,13 +61,46 @@ if map_loaded:
         )
         
         # 붉은색 단계구분도 칠하기
-        folium.Choropleth(
+        with col_map:
+        st.subheader("🗺️ 성남시 인터랙티브 맵")
+        
+        # 1. 폰 화면에 맞춰 자동으로 늘어나는 예쁜 컬러바 그리기 (스트림릿 네이티브)
+        st.markdown("""
+            <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: bold; color: #555; margin-bottom: 5px;">
+                <span>🟢 안전 구역</span>
+                <span>🚨 위험 구역</span>
+            </div>
+            <div style="background: linear-gradient(to right, #fee5d9, #fcae91, #fb6a4a, #de2d26, #a50f15); 
+                        height: 12px; border-radius: 10px; margin-bottom: 15px;"></div>
+        """, unsafe_allow_html=True)
+        
+        center_lat, center_lon = merged.geometry.centroid.y.mean(), merged.geometry.centroid.x.mean()
+        m = folium.Map(location=[center_lat, center_lon], zoom_start=11.3, tiles="CartoDB positron", dragging=False, scrollWheelZoom=False, zoom_control=False)
+        
+        # 2. 지도 색칠하기
+        choro = folium.Choropleth(
             geo_data=merged, data=merged,
             columns=['행정동', '최종 보행 위험도 점수'],
             key_on=f'feature.properties.{map_col}',
-            fill_color='Reds', fill_opacity=0.7, line_opacity=0.3,
-            legend_name='위험도 점수'
+            fill_color='Reds', fill_opacity=0.7, line_opacity=0.3
+        )
+        
+        # 3. [핵심] 기존에 잘리던 못생긴 기본 범례 강제로 끄기
+        for key in list(choro._children.keys()):
+            if key.startswith('color_map'):
+                del(choro._children[key])
+                
+        choro.add_to(m)
+        
+        # 클릭 인식을 위한 투명 레이어
+        folium.GeoJson(
+            merged,
+            style_function=lambda x: {'fillColor': '#000', 'color':'#000', 'fillOpacity': 0.0, 'weight': 0},
+            tooltip=folium.features.GeoJsonTooltip(fields=[map_col], aliases=['행정동: ']),
+            highlight_function=lambda x: {'weight':3, 'color':'#ff0000', 'fillOpacity': 0.2} 
         ).add_to(m)
+        
+        map_output = st_folium(m, use_container_width=True, height=350)
         
         # 클릭 인식을 위한 투명 레이어
         folium.GeoJson(
