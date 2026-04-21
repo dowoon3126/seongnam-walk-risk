@@ -73,25 +73,6 @@ if map_loaded:
             zoom_control=True        # 👈 + / - 줌 버튼 살려둠
         )
         
-        # 3. 💡 [비기] 질문자님의 아이디어를 구현한 초경량 스크립트!
-        from folium import Element
-        zoom_script = f"""
-        <script>
-            setTimeout(function() {{
-                var map_obj = {m.get_name()};
-                map_obj.on('zoomend', function() {{
-                    if (map_obj.getZoom() > 11.3) {{
-                        map_obj.dragging.enable(); // 🔓 확대하면 드래그 봉인 해제!
-                    }} else {{
-                        map_obj.dragging.disable(); // 🔒 원래 크기면 다시 스크롤 보호 모드!
-                        map_obj.setView([{center_lat}, {center_lon}], 11.3); // 🎯 중앙으로 예쁘게 원상복구
-                    }}
-                }});
-            }}, 500);
-        </script>
-        """
-        m.get_root().html.add_child(Element(zoom_script))
-        
         # 3. 지도 붉은색 칠하기
         choro = folium.Choropleth(
             geo_data=merged, data=merged,
