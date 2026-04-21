@@ -133,9 +133,6 @@ if map_loaded:
                     'staticPlot': True       # 🔒 차트를 아예 찌그러지지 않는 이미지 모드로 고정!
                 })
                 
-                # 2. 우측 상단에 뜨는 거슬리는 Plotly 기본 메뉴바(사진기 모양 등) 아예 숨기기
-                st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
-                
                 # 맞춤형 처방전 로직
                 st.markdown("맞춤형 정책 제언")
                 if dong_data['안전 시설 밀도(100점)'] < 30:
