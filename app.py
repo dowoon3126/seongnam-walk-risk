@@ -120,7 +120,7 @@ if map_loaded:
                 st.plotly_chart(fig, use_container_width=True)
                 
                 # 맞춤형 처방전 로직
-                st.markdown("###맞춤형 정책 제언")
+                st.markdown("맞춤형 정책 제언")
                 if dong_data['안전 시설 밀도(100점)'] < 30:
                     st.error("**[안전 비상]** 제설함 및 보행자 펜스 확충 시급")
                 if dong_data['평균 기울기(100점)'] >= 70:
