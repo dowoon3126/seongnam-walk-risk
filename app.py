@@ -112,37 +112,43 @@ if map_loaded:
                 st.write(f"**종합 위험도 {dong_data['위험도 순위']}위** ({dong_data['최종 보행 위험도 점수']}점)")
                 
                 # 방사형 차트
-                categories = ['평균 기울기', '골목길 비율', '교통약자 거주 인구 밀도', '교통약자 유발 시설 밀도', '안전 시설 밀도']
-                values = [dong_data[c] for c in categories]
+                # 1. 💡 줄바꿈 스킬: 데이터 찾는 이름(cols)과 화면에 보여줄 이름(labels)을 분리합니다!
+                cols = ['평균 기울기', '골목길 비율', '교통약자 거주 인구 밀도', '교통약자 유발 시설 밀도', '안전 시설 밀도']
+                labels = ['평균 기울기', '골목길 비율', '교통약자<br>거주 인구 밀도', '교통약자<br>유발 시설 밀도', '안전 시설 밀도']
+                values = [dong_data[c] for c in cols]
                 
                 fig = go.Figure()
-                fig.add_trace(go.Scatterpolar(r=values, theta=categories, fill='toself', fillcolor='rgba(255, 0, 0, 0.2)', line_color='red'))
                 
-                # 1. 100점 고정 및 글자 잘림 방지
+                # 2. 💡 라벨링 살리기: mode에 text를 추가하고 글씨색을 진하게(black) 바꿉니다!
+                fig.add_trace(go.Scatterpolar(
+                    r=values, 
+                    theta=labels, 
+                    fill='toself', 
+                    fillcolor='rgba(255, 0, 0, 0.2)', 
+                    line_color='red',
+                    mode='lines+markers+text',       # 점과 선, 그리고 텍스트까지 보여줘!
+                    text=[f"{v}점" for v in values],   # 숫자 뒤에 '점'을 붙여서 더 친절하게
+                    textposition='top center',       # 글자를 점 위쪽에 배치
+                    textfont=dict(color='black', size=11, weight='bold') # 까만색 굵은 글씨!
+                ))
+                
                 fig.update_layout(
                     polar=dict(
-                        radialaxis=dict(visible=True, range=[0, 100]) # 100점 만점으로 축 범위 고정
+                        radialaxis=dict(
+                            visible=True, 
+                            range=[0, 100], 
+                            tickfont=dict(color='#999999') # 배경의 0, 20, 40 축 숫자는 연한 회색으로 안 거슬리게
+                        ),
+                        angularaxis=dict(
+                            tickfont=dict(color='black', size=12) # 겉 테두리 카테고리 글자도 까맣고 선명하게
+                        )
                     ), 
                     showlegend=False, 
-                    margin=dict(l=80, r=80, t=40, b=40), # 좌우 여백 확보
+                    margin=dict(l=60, r=60, t=40, b=40), # 줄바꿈을 했으니 좌우 여백을 조금 줄여서 차트를 키워줍니다!
                     height=350
                 )
                 
-                # 2. 터치 조작 자체를 완전히 차단해버리는 안전한 방법
                 st.plotly_chart(fig, use_container_width=True, config={
-                    'displayModeBar': False, # 거슬리는 상단 메뉴바 숨김
-                    'staticPlot': True       # 🔒 차트를 아예 찌그러지지 않는 이미지 모드로 고정!
+                    'displayModeBar': False, 
+                    'staticPlot': True       
                 })
-                
-                # 맞춤형 처방전 로직 (아이콘 완전히 제거)
-                st.markdown("맞춤형 정책 제언")
-                if dong_data['안전 시설 밀도'] < 30:
-                    st.error("**[안전 비상]** 제설함 및 보행자 펜스 확충 시급")
-                if dong_data['평균 기울기'] >= 70:
-                    st.warning("**[지형 한계]** 열선(발열매트) 설치 우선 검토")
-                if dong_data['골목길 비율'] >= 80:
-                    st.warning("**[보차혼용]** 미끄럼 방지 포장 및 스마트 보안등 필요")
-                if dong_data['안전 시설 밀도'] >= 50 and dong_data['평균 기울기'] < 50:
-                    st.success("인프라 양호 구역 (현행 유지보수 집중)")
-            else:
-                st.warning(f"선택하신 '{clicked_dong}' 데이터가 성적표에 없습니다.")
