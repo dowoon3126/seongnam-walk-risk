@@ -135,7 +135,7 @@ if map_loaded:
                             tickfont=dict(color='#333333', size=11, weight='bold') # 👈 [수정] 0~100 기준 숫자를 진한 먹색(#333333)과 굵은 글씨로!
                         ),
                         angularaxis=dict(
-                            tickfont=dict(color='#000000', size=12, weight='bold') # 👈 [수정] 바깥쪽 글씨를 완전한 검은색(#000000)으로 더 또렷하게!
+                            tickfont=dict(color='#ffffff', size=10, weight='bold') # 👈 [수정] 바깥쪽 글씨를 완전한 검은색(#000000)으로 더 또렷하게!
                         )
                     ), 
                     showlegend=False, 
