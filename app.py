@@ -8,7 +8,7 @@ import plotly.graph_objects as go
 # 1. 페이지 기본 설정
 st.set_page_config(page_title="성남시 보행 위험도 대시보드", layout="wide")
 st.header("성남시 보행 위험도 대시보드")
-st.info("지도에서 동네를 클릭하고 아래로 스크롤하여 진단서를 확인하세요!")
+st.info("👇 지도에서 동네를 클릭하고 아래로 스크롤하여 진단서를 확인하세요!")
 
 # 2. 데이터 불러오기 (한글 깨짐 방지)
 @st.cache_data
@@ -52,8 +52,8 @@ if map_loaded:
         # 1. 폰 화면에 맞춰 자동으로 늘어나는 예쁜 컬러바 그리기
         st.markdown("""
             <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: bold; color: #555; margin-bottom: 5px;">
-                <span>안전 구역</span>
-                <span>위험 구역</span>
+                <span>🟢 안전 구역</span>
+                <span>🚨 위험 구역</span>
             </div>
             <div style="background: linear-gradient(to right, #fee5d9, #fcae91, #fb6a4a, #de2d26, #a50f15); 
                         height: 12px; border-radius: 10px; margin-bottom: 15px;"></div>
@@ -117,23 +117,23 @@ if map_loaded:
                 fig = go.Figure()
                 fig.add_trace(go.Scatterpolar(r=values, theta=categories, fill='toself', fillcolor='rgba(255, 0, 0, 0.2)', line_color='red'))
                 
-                # 1. 100점 고정 및 글자 잘림 방지 (에러 유발 코드 제거)
+                # 1. 100점 고정 및 글자 잘림 방지
                 fig.update_layout(
                     polar=dict(
                         radialaxis=dict(visible=True, range=[0, 100]) # 100점 만점으로 축 범위 고정
                     ), 
                     showlegend=False, 
-                    margin=dict(l=80, r=80, t=40, b=40), # 👈 좌우 여백을 80으로 늘려서 긴 글자도 다 보이게!
+                    margin=dict(l=80, r=80, t=40, b=40), # 좌우 여백 확보
                     height=350
                 )
                 
-                # 2. [가장 중요] 터치 조작 자체를 완전히 차단해버리는 안전한 방법
+                # 2. 터치 조작 자체를 완전히 차단해버리는 안전한 방법
                 st.plotly_chart(fig, use_container_width=True, config={
                     'displayModeBar': False, # 거슬리는 상단 메뉴바 숨김
                     'staticPlot': True       # 🔒 차트를 아예 찌그러지지 않는 이미지 모드로 고정!
                 })
                 
-                # 맞춤형 처방전 로직
+                # 맞춤형 처방전 로직 (아이콘 완전히 제거)
                 st.markdown("맞춤형 정책 제언")
                 if dong_data['안전 시설 밀도'] < 30:
                     st.error("**[안전 비상]** 제설함 및 보행자 펜스 확충 시급")
