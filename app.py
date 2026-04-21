@@ -49,21 +49,7 @@ if map_loaded:
     col_map, col_info = st.columns([1.5, 1])
     
     with col_map:
-        center_lat, center_lon = merged.geometry.centroid.y.mean(), merged.geometry.centroid.x.mean()
-        m = folium.Map(
-            location=[center_lat, center_lon], 
-            zoom_start=11.3,         
-            tiles="CartoDB positron",
-            dragging=False,          # ☝️ 맵 이동 금지 (손가락으로 페이지 스크롤이 가능해짐!)
-            scrollWheelZoom=False,   # ☝️ 맵 줌 금지
-            zoom_control=False       # ☝️ 좌측 상단 +/- 버튼 숨기기 (모바일 화면을 더 넓게)
-        )
-        
-        # 붉은색 단계구분도 칠하기
-        with col_map:
-            st.subheader("🗺️ 성남시 인터랙티브 맵")
-        
-        # 1. 폰 화면에 맞춰 자동으로 늘어나는 예쁜 컬러바 그리기 (스트림릿 네이티브)
+        # 1. 폰 화면에 맞춰 자동으로 늘어나는 예쁜 컬러바 그리기
         st.markdown("""
             <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: bold; color: #555; margin-bottom: 5px;">
                 <span>🟢 안전 구역</span>
@@ -73,10 +59,18 @@ if map_loaded:
                         height: 12px; border-radius: 10px; margin-bottom: 15px;"></div>
         """, unsafe_allow_html=True)
         
+        # 2. 지도 초기 설정 (중복 제거!)
         center_lat, center_lon = merged.geometry.centroid.y.mean(), merged.geometry.centroid.x.mean()
-        m = folium.Map(location=[center_lat, center_lon], zoom_start=11.3, tiles="CartoDB positron", dragging=False, scrollWheelZoom=False, zoom_control=False)
+        m = folium.Map(
+            location=[center_lat, center_lon], 
+            zoom_start=11.3,         
+            tiles="CartoDB positron",
+            dragging=False,          
+            scrollWheelZoom=False,   
+            zoom_control=False       
+        )
         
-        # 2. 지도 색칠하기
+        # 3. 지도 붉은색 칠하기
         choro = folium.Choropleth(
             geo_data=merged, data=merged,
             columns=['행정동', '최종 보행 위험도 점수'],
@@ -84,14 +78,14 @@ if map_loaded:
             fill_color='Reds', fill_opacity=0.7, line_opacity=0.3
         )
         
-        # 3. [핵심] 기존에 잘리던 못생긴 기본 범례 강제로 끄기
+        # 4. 기존 못생긴 범례 강제 제거
         for key in list(choro._children.keys()):
             if key.startswith('color_map'):
                 del(choro._children[key])
                 
         choro.add_to(m)
         
-        # 클릭 인식을 위한 투명 레이어
+        # 5. 클릭 인식을 위한 투명 레이어 (중복 제거!)
         folium.GeoJson(
             merged,
             style_function=lambda x: {'fillColor': '#000', 'color':'#000', 'fillOpacity': 0.0, 'weight': 0},
@@ -99,17 +93,8 @@ if map_loaded:
             highlight_function=lambda x: {'weight':3, 'color':'#ff0000', 'fillOpacity': 0.2} 
         ).add_to(m)
         
+        # 6. 화면 출력 (중복 제거!)
         map_output = st_folium(m, use_container_width=True, height=350)
-        
-        # 클릭 인식을 위한 투명 레이어
-        folium.GeoJson(
-            merged,
-            style_function=lambda x: {'fillColor': '#000', 'color':'#000', 'fillOpacity': 0.0, 'weight': 0},
-            tooltip=folium.features.GeoJsonTooltip(fields=[map_col], aliases=['행정동: ']),
-            highlight_function=lambda x: {'weight':3, 'color':'#ff0000', 'fillOpacity': 0.2} 
-        ).add_to(m)
-        
-        map_output = st_folium(m, use_container_width=True, height=350) 
         
     with col_info:
         clicked_dong = None
