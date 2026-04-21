@@ -132,10 +132,14 @@ if map_loaded:
                         radialaxis=dict(
                             visible=True, 
                             range=[0, 100], 
-                            tickfont=dict(color='#333333', size=11, weight='bold') # 👈 [수정] 0~100 기준 숫자를 진한 먹색(#333333)과 굵은 글씨로!
+                            # 👈 [핵심] 0부터 80까지만 숫자를 표시하고 100은 리스트에서 뺍니다.
+                            tickvals=[0, 20, 40, 60, 80], 
+                            ticktext=['0', '20', '40', '60', '80'],
+                            tickfont=dict(color='#333333', size=11, weight='bold'),
+                            gridcolor='#eeeeee' # 눈금선은 100까지 그려지지만 숫자만 안 보임
                         ),
                         angularaxis=dict(
-                            tickfont=dict(color='#ffffff', size=10, weight='bold') # 👈 [수정] 바깥쪽 글씨를 완전한 검은색(#000000)으로 더 또렷하게!
+                            tickfont=dict(color='#000000', size=12, weight='bold')
                         )
                     ), 
                     showlegend=False, 
