@@ -8,10 +8,10 @@ import plotly.graph_objects as go
 # 1. 페이지 기본 설정 (와이드 레이아웃 유지)
 st.set_page_config(page_title="성남시 보행 위험도 대시보드", layout="wide")
 
-# [수정] 강제 다크모드 지정 색상(#0E1117) 설정 및 상단 여백/제목 간격 축소
+# 강제 다크모드 지정 색상(#0E1117) 설정 및 상단 여백/제목 간격 축소
 st.markdown("""
     <style>
-    /* 전체 배경을 요청하신 #0E1117, 텍스트를 흰색으로 강제 고정 */
+    /* 전체 배경을 #0E1117, 텍스트를 흰색으로 강제 고정 */
     .stApp {
         background-color: #0E1117;
         color: #ffffff;
@@ -148,7 +148,7 @@ if map_loaded:
                     line_color='red'
                 ))
                 
-                # 차트 배경색을 다크 모드에 맞추고 100점 텍스트 숨기기
+                # 차트 배경색 설정 및 0~100 라벨링 복구
                 fig.update_layout(
                     paper_bgcolor='rgba(0,0,0,0)',  # 차트 바깥쪽 배경 투명 (#0E1117이 비쳐보임)
                     polar=dict(
@@ -156,10 +156,11 @@ if map_loaded:
                         radialaxis=dict(
                             visible=True, 
                             range=[0, 100],
-                            showticklabels=False    # 100, 50 같은 범위 표시 숫자 숨기기
+                            showticklabels=True,            # [수정] 0~100 라벨링 다시 켜기
+                            tickfont=dict(color='#cccccc')  # [추가] 어두운 배경에 잘 보이도록 숫자 색상을 밝은 회색으로 변경
                         ),
                         angularaxis=dict(
-                            color='white'           # 항목 이름 글자색을 흰색으로 변경
+                            color='white'           # 항목 이름 글자색을 흰색으로 유지
                         )
                     ), 
                     showlegend=False, 
@@ -184,6 +185,6 @@ if map_loaded:
                 if dong_data['안전 시설 밀도'] >= 50 and dong_data['평균 기울기'] < 50:
                     st.success("인프라 양호 구역 (현행 유지보수 집중)")
                     
-            # 들여쓰기 수정 완료: 데이터가 없을 때만 경고 문구 출력
+            # 데이터가 없을 때만 경고 문구 출력
             else:
                 st.warning(f"선택하신 '{clicked_dong}' 데이터가 성적표에 없습니다.")
