@@ -65,9 +65,9 @@ if map_loaded:
             location=[center_lat, center_lon], 
             zoom_start=11.3,         
             tiles="CartoDB positron",
-            dragging=False,          
+            dragging=True,          
             scrollWheelZoom=False,   
-            zoom_control=False       
+            zoom_control=True       
         )
         
         # 3. 지도 붉은색 칠하기
