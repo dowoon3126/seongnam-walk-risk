@@ -8,7 +8,7 @@ import plotly.graph_objects as go
 # 1. 페이지 기본 설정
 st.set_page_config(page_title="성남시 보행 위험도 대시보드", layout="wide")
 st.header("성남시 보행 위험도 대시보드")
-st.info("👇 지도에서 동네를 클릭하고 아래로 스크롤하여 진단서를 확인하세요!")
+st.info("지도에서 동네를 클릭하고 아래로 스크롤하여 진단서를 확인하세요!")
 
 # 2. 데이터 불러오기 (한글 깨짐 방지)
 @st.cache_data
@@ -37,7 +37,7 @@ try:
     gdf = load_map()
     map_loaded = True
 except Exception as e:
-    st.error("⚠️ 'BND_ADM_DONG_PG.shp' 파일과 짝꿍 파일들(.shx, .dbf, .prj)이 같은 폴더에 있는지 확인해주세요!")
+    st.error("'BND_ADM_DONG_PG.shp' 파일과 짝꿍 파일들(.shx, .dbf, .prj)이 같은 폴더에 있는지 확인해주세요!")
     map_loaded = False
 
 if map_loaded:
@@ -53,8 +53,8 @@ if map_loaded:
         # 1. 폰 화면에 맞춰 자동으로 늘어나는 예쁜 컬러바 그리기
         st.markdown("""
             <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: bold; color: #555; margin-bottom: 5px;">
-                <span>🟢 안전 구역</span>
-                <span>🚨 위험 구역</span>
+                <span>안전 구역</span>
+                <span>위험 구역</span>
             </div>
             <div style="background: linear-gradient(to right, #fee5d9, #fcae91, #fb6a4a, #de2d26, #a50f15); 
                         height: 12px; border-radius: 10px; margin-bottom: 15px;"></div>
