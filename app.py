@@ -53,7 +53,7 @@ if map_loaded:
         center_lat, center_lon = merged.geometry.centroid.y.mean(), merged.geometry.centroid.x.mean()
         m = folium.Map(
             location=[center_lat, center_lon], 
-            zoom_start=11,           # 11.5 -> 11로 축소 (성남시가 한눈에 쏙 들어옴)
+            zoom_start=11.3,         
             tiles="CartoDB positron",
             dragging=False,          # ☝️ 맵 이동 금지 (손가락으로 페이지 스크롤이 가능해짐!)
             scrollWheelZoom=False,   # ☝️ 맵 줌 금지
@@ -77,7 +77,7 @@ if map_loaded:
             highlight_function=lambda x: {'weight':3, 'color':'#ff0000', 'fillOpacity': 0.2} 
         ).add_to(m)
         
-        map_output = st_folium(m, use_container_width=True, height=400) 
+        map_output = st_folium(m, use_container_width=True, height=350) 
         
     with col_info:
         clicked_dong = None
