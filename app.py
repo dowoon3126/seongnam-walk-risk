@@ -70,7 +70,7 @@ if map_loaded:
             highlight_function=lambda x: {'weight':3, 'color':'#ff0000', 'fillOpacity': 0.2} 
         ).add_to(m)
         
-        map_output = st_folium(m, width=600, height=500)
+        map_output = st_folium(m, use_container_width=True, height=500)
         
     with col_info:
         clicked_dong = None
