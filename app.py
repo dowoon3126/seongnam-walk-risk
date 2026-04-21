@@ -111,13 +111,17 @@ if map_loaded:
                 st.subheader(f"[{clicked_dong}] 진단서")
                 st.write(f"**종합 위험도 {dong_data['위험도 순위']}위** ({dong_data['최종 보행 위험도 점수']}점)")
                 
-               # 방사형 차트
+               # 방사형 차트 데이터 준비
                 categories = ['평균 기울기', '골목길 비율', '교통약자 거주 인구 밀도', '교통약자 유발 시설 밀도', '안전 시설 밀도']
                 values = [dong_data[c] for c in categories]
                 
+                # 💡 [핵심] 마지막 점과 첫 점을 잇기 위해 첫 번째 데이터를 끝에 추가합니다.
+                categories = categories + [categories[0]]
+                values = values + [values[0]]
+                
                 fig = go.Figure()
                 
-                # 1. 차트 그리기
+                # 차트 그리기
                 fig.add_trace(go.Scatterpolar(
                     r=values, 
                     theta=categories, 
