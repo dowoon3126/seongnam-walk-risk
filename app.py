@@ -111,7 +111,7 @@ if map_loaded:
                 st.write(f"**종합 위험도 {dong_data['위험도 순위']}위** ({dong_data['최종 보행 위험도 점수']}점)")
                 
                 # 방사형 차트
-                categories = ['평균 기울기(100점)', '골목길 비율(100점)', '교통약자 거주 인구 밀도(100점)', '교통약자 유발 시설 밀도(100점)', '안전 시설 밀도(100점)']
+                categories = ['평균 기울기', '골목길 비율', '교통약자 거주 인구 밀도', '교통약자 유발 시설 밀도', '안전 시설 밀도']
                 values = [dong_data[c] for c in categories]
                 
                 fig = go.Figure()
