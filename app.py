@@ -8,12 +8,12 @@ import plotly.graph_objects as go
 # 1. 페이지 기본 설정 (와이드 레이아웃 유지)
 st.set_page_config(page_title="성남시 보행 위험도 대시보드", layout="wide")
 
-# [수정 3 & 4] 강제 다크모드(블랙) 설정 및 상단 여백/제목 간격 축소
+# [수정] 강제 다크모드 지정 색상(#0E1117) 설정 및 상단 여백/제목 간격 축소
 st.markdown("""
     <style>
-    /* 전체 배경을 검은색, 텍스트를 흰색으로 강제 고정 */
+    /* 전체 배경을 요청하신 #0E1117, 텍스트를 흰색으로 강제 고정 */
     .stApp {
-        background-color: #000000;
+        background-color: #0E1117;
         color: #ffffff;
     }
     /* Streamlit 기본 상단 여백 줄이기 */
@@ -27,7 +27,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# [수정 4] st.header 대신 HTML/CSS를 사용해 제목과 아래 요소 간의 간격(margin) 최소화
+# 제목과 아래 요소 간의 간격(margin) 최소화
 st.markdown('<h2 style="margin-top: 0px; margin-bottom: 5px;">성남시 보행 위험도 대시보드</h2>', unsafe_allow_html=True)
 st.info("지도에서 동네를 클릭하고 아래로 스크롤하여 진단서를 확인하세요!")
 
@@ -61,7 +61,7 @@ except Exception as e:
     map_loaded = False
 
 if map_loaded:
-    # 코랩에서 찾았던 정확한 동네 이름 열(ADM_NM) 고정 적용!
+    # 코랩에서 찾았던 정확한 동네 이름 열(ADM_NM) 고정 적용
     map_col = 'ADM_NM'
         
     # 지도와 데이터 병합
@@ -114,7 +114,7 @@ if map_loaded:
             highlight_function=lambda x: {'weight':3, 'color':'#ff0000', 'fillOpacity': 0.2} 
         ).add_to(m)
         
-        # 6. 화면 출력 (단 한 번만 깔끔하게 실행!)
+        # 6. 화면 출력
         map_output = st_folium(m, use_container_width=True, height=350)
         
     with col_info:
@@ -150,27 +150,27 @@ if map_loaded:
                 
                 # 차트 배경색을 다크 모드에 맞추고 100점 텍스트 숨기기
                 fig.update_layout(
-                    paper_bgcolor='rgba(0,0,0,0)',
+                    paper_bgcolor='rgba(0,0,0,0)',  # 차트 바깥쪽 배경 투명 (#0E1117이 비쳐보임)
                     polar=dict(
-                        bgcolor='#111111',
+                        bgcolor='#1E2127',          # 차트 안쪽 원은 배경보다 살짝 밝은 다크톤으로 구분
                         radialaxis=dict(
                             visible=True, 
                             range=[0, 100],
-                            showticklabels=False
+                            showticklabels=False    # 100, 50 같은 범위 표시 숫자 숨기기
                         ),
                         angularaxis=dict(
-                            color='white'
+                            color='white'           # 항목 이름 글자색을 흰색으로 변경
                         )
                     ), 
                     showlegend=False, 
-                    margin=dict(l=80, r=80, t=40, b=40),
+                    margin=dict(l=80, r=80, t=40, b=40), # 좌우 여백 확보
                     height=350
                 )
                 
                 # 차트 출력
                 st.plotly_chart(fig, use_container_width=True, config={
-                    'displayModeBar': False,
-                    'staticPlot': True
+                    'displayModeBar': False, # 거슬리는 상단 메뉴바 숨김
+                    'staticPlot': True       # 🔒 차트를 찌그러지지 않는 이미지 모드로 고정
                 })
                 
                 # 맞춤형 처방전 로직
@@ -184,6 +184,6 @@ if map_loaded:
                 if dong_data['안전 시설 밀도'] >= 50 and dong_data['평균 기울기'] < 50:
                     st.success("인프라 양호 구역 (현행 유지보수 집중)")
                     
-            # 💡 수정된 부분: else의 들여쓰기를 if len(match_df) > 0: 과 맞춤!
+            # 들여쓰기 수정 완료: 데이터가 없을 때만 경고 문구 출력
             else:
                 st.warning(f"선택하신 '{clicked_dong}' 데이터가 성적표에 없습니다.")
