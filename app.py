@@ -10,17 +10,25 @@ st.set_page_config(page_title="성남시 보행 위험도 대시보드", layout=
 # 1. 배경을 강제로 하얀색으로 고정하는 CSS
 st.markdown("""
     <style>
-    /* 메인 배경 하얀색 */
+    /* 1. 메인 배경 다크 고정 */
     .stApp {
         background-color: #0E1117;
     }
-    /* 상단 헤더 영역 하얀색 */
+
+    /* 2. 상단 시스템 헤더(점 3개 있는 곳) 배경색 및 투명도 조절 */
     header[data-testid="stHeader"] {
-        background-color: #FFFFFF;
+        background-color: rgba(14, 17, 23, 0.8) !important; /* 배경색과 맞춤 */
+        color: white !important;
     }
-    /* 사이드바가 있다면 사이드바 배경도 하얀색 (선택사항) */
-    [data-testid="stSidebar"] {
-        background-color: #FFFFFF;
+    
+    /* 3. 상단 아이콘들(공유, 점 3개) 색상을 하얗게 강제 */
+    header[data-testid="stHeader"] svg {
+        fill: white !important;
+    }
+
+    /* 4. (추가 팁) 텍스트가 안 보일 수 있으니 기본 글자색 하얗게 고정 */
+    .stMarkdown, .stText, .stSubheader, .stHeader {
+        color: white !important;
     }
     </style>
 """, unsafe_allow_html=True)
