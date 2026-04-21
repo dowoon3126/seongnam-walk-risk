@@ -8,27 +8,30 @@ import plotly.graph_objects as go
 # 1. 페이지 기본 설정
 st.set_page_config(page_title="성남시 보행 위험도 대시보드", layout="wide")
 # 1. 배경을 강제로 하얀색으로 고정하는 CSS
+# app.py 상단에 넣을 여백 제거 및 다크 모드 통합 코드
 st.markdown("""
-    <style>
-    /* 1. 페이지 전체의 상단 여백(Padding)을 최소화 */
+<style>
+    /* 1. 상단 여백 박멸 */
     .block-container {
-        padding-top: 1rem !important;    /* 👈 숫자를 더 줄이면 더 위로 붙습니다 (기본은 보통 6rem) */
+        padding-top: 0rem !important;
         padding-bottom: 0rem !important;
         padding-left: 1rem !important;
         padding-right: 1rem !important;
     }
 
-    /* 2. 제목 태그 자체의 마진(Margin) 제거 */
+    /* 2. 제목 위치 강제 상향 */
     h2 {
-        margin-top: -20px !important;    /* 👈 마이너스 값을 주면 헤더 쪽으로 더 바짝 올라갑니다 */
+        margin-top: -35px !important;
         padding-top: 0px !important;
+        color: white !important;
     }
 
-    /* 3. 헤더 영역 높이 조절 */
+    /* 3. 헤더 영역 배경색 및 높이 조절 */
     header[data-testid="stHeader"] {
-        height: 3rem !important;
+        background-color: #0E1117 !important;
+        height: 2rem !important;
     }
-    </style>
+</style>
 """, unsafe_allow_html=True)
 st.markdown("""
     <h2 style="font-size: 30px; font-weight: bold; margin-bottom: 5px;">
