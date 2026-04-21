@@ -11,25 +11,31 @@ st.set_page_config(page_title="성남시 보행 위험도 대시보드", layout=
 # app.py 상단에 넣을 여백 제거 및 다크 모드 통합 코드
 st.markdown("""
 <style>
-    /* 1. 상단 여백 박멸 */
+    /* 1. 페이지 상단 여백을 '적당히' 확보 (사라진 제목 구조대) */
     .block-container {
-        padding-top: 0rem !important;
+        padding-top: 2rem !important;   /* 0에서 2로 늘려 제목이 보일 공간 확보 */
         padding-bottom: 0rem !important;
         padding-left: 1rem !important;
         padding-right: 1rem !important;
     }
 
-    /* 2. 제목 위치 강제 상향 */
+    /* 2. 제목 설정: 위로 숨지 않게 마진을 0으로 고정 */
     h2 {
-        margin-top: -35px !important;
+        margin-top: 0px !important;     /* 마이너스 제거! */
         padding-top: 0px !important;
+        font-size: 24px !important;     /* 크기 다시 고정 */
         color: white !important;
     }
 
-    /* 3. 헤더 영역 배경색 및 높이 조절 */
+    /* 3. 파란색 안내 박스(st.info) 여백 조절 */
+    .stAlert {
+        margin-top: 10px !important;    /* 제목과의 간격 확보 */
+        padding: 10px !important;       /* 내부 글자가 안 잘리게 패딩 추가 */
+    }
+
+    /* 4. 헤더 영역 투명화 */
     header[data-testid="stHeader"] {
-        background-color: #0E1117 !important;
-        height: 2rem !important;
+        background-color: transparent !important;
     }
 </style>
 """, unsafe_allow_html=True)
