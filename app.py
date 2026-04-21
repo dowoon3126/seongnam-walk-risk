@@ -62,7 +62,7 @@ if map_loaded:
         
         # 붉은색 단계구분도 칠하기
         with col_map:
-        st.subheader("🗺️ 성남시 인터랙티브 맵")
+            st.subheader("🗺️ 성남시 인터랙티브 맵")
         
         # 1. 폰 화면에 맞춰 자동으로 늘어나는 예쁜 컬러바 그리기 (스트림릿 네이티브)
         st.markdown("""
