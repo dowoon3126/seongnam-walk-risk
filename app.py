@@ -70,6 +70,8 @@ if map_loaded:
             scrollWheelZoom=True,   
             zoom_control=True       
         )
+
+        GestureHandling().add_to(m)
         
         # 3. 지도 붉은색 칠하기
         choro = folium.Choropleth(
