@@ -135,13 +135,13 @@ if map_loaded:
                 
                 # 맞춤형 처방전 로직
                 st.markdown("맞춤형 정책 제언")
-                if dong_data['안전 시설 밀도(100점)'] < 30:
+                if dong_data['안전 시설 밀도'] < 30:
                     st.error("**[안전 비상]** 제설함 및 보행자 펜스 확충 시급")
-                if dong_data['평균 기울기(100점)'] >= 70:
+                if dong_data['평균 기울기'] >= 70:
                     st.warning("**[지형 한계]** 열선(발열매트) 설치 우선 검토")
-                if dong_data['골목길 비율(100점)'] >= 80:
+                if dong_data['골목길 비율'] >= 80:
                     st.warning("**[보차혼용]** 미끄럼 방지 포장 및 스마트 보안등 필요")
-                if dong_data['안전 시설 밀도(100점)'] >= 50 and dong_data['평균 기울기(100점)'] < 50:
+                if dong_data['안전 시설 밀도'] >= 50 and dong_data['평균 기울기'] < 50:
                     st.success("인프라 양호 구역 (현행 유지보수 집중)")
             else:
                 st.warning(f"선택하신 '{clicked_dong}' 데이터가 성적표에 없습니다.")
