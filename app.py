@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import geopandas as gpd
 import folium
+from folium.plugins import GestureHandling
 from streamlit_folium import st_folium
 import plotly.graph_objects as go
 
@@ -66,7 +67,7 @@ if map_loaded:
             zoom_start=11.3,         
             tiles="CartoDB positron",
             dragging=True,          
-            scrollWheelZoom=False,   
+            scrollWheelZoom=True,   
             zoom_control=True       
         )
         
