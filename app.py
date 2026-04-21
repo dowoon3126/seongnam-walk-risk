@@ -61,6 +61,8 @@ if map_loaded:
         
         # 2. 지도 초기 설정
         # 1. 맵 생성
+        center_lat, center_lon = merged.geometry.centroid.y.mean(), merged.geometry.centroid.x.mean()
+        
         m = folium.Map(
             location=[center_lat, center_lon], 
             zoom_start=11.3,         
