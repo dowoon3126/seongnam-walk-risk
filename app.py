@@ -145,7 +145,7 @@ if map_loaded:
                             ticks=""
                         ),
                         angularaxis=dict(
-                            tickfont=dict(color='#000000', size=12, weight='bold')
+                            tickfont=dict(color='#ffffff', size=10, weight='bold')
                         )
                     ), 
                     showlegend=False, 
