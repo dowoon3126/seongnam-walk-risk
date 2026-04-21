@@ -135,7 +135,7 @@ if map_loaded:
                 categories = ['평균 기울기', '골목길 비율', '교통약자 거주 인구 밀도', '교통약자 유발 시설 밀도', '안전 시설 밀도']
                 values = [dong_data[c] for c in categories]
                 
-                # [수정 2] 마지막 빨간 선분을 연결하기 위해 첫 번째 데이터를 맨 끝에 복사해서 붙임 (도형 닫기)
+                # 마지막 빨간 선분을 연결하기 위해 첫 번째 데이터를 맨 끝에 복사해서 붙임 (도형 닫기)
                 categories_closed = categories + [categories[0]]
                 values_closed = values + [values[0]]
                 
@@ -148,29 +148,29 @@ if map_loaded:
                     line_color='red'
                 ))
                 
-                # [수정 1 & 3] 차트 배경색을 다크 모드에 맞추고 100점 텍스트 숨기기
+                # 차트 배경색을 다크 모드에 맞추고 100점 텍스트 숨기기
                 fig.update_layout(
-                    paper_bgcolor='rgba(0,0,0,0)',  # 차트 바깥쪽 배경 투명(검은 화면에 녹아들게)
+                    paper_bgcolor='rgba(0,0,0,0)',
                     polar=dict(
-                        bgcolor='#111111',          # 차트 안쪽 원 배경은 약간 어두운 회/검정
+                        bgcolor='#111111',
                         radialaxis=dict(
                             visible=True, 
                             range=[0, 100],
-                            showticklabels=False    # [수정 1] 100, 50 같은 범위 표시 숫자 숨기기
+                            showticklabels=False
                         ),
                         angularaxis=dict(
-                            color='white'           # 항목 이름(카테고리) 글자색을 흰색으로 변경
+                            color='white'
                         )
                     ), 
                     showlegend=False, 
-                    margin=dict(l=80, r=80, t=40, b=40), # 좌우 여백 확보
+                    margin=dict(l=80, r=80, t=40, b=40),
                     height=350
                 )
                 
                 # 차트 출력
                 st.plotly_chart(fig, use_container_width=True, config={
-                    'displayModeBar': False, # 거슬리는 상단 메뉴바 숨김
-                    'staticPlot': True       # 🔒 차트를 찌그러지지 않는 이미지 모드로 고정!
+                    'displayModeBar': False,
+                    'staticPlot': True
                 })
                 
                 # 맞춤형 처방전 로직
@@ -183,5 +183,7 @@ if map_loaded:
                     st.warning("**[보차혼용]** 미끄럼 방지 포장 및 스마트 보안등 필요")
                 if dong_data['안전 시설 밀도'] >= 50 and dong_data['평균 기울기'] < 50:
                     st.success("인프라 양호 구역 (현행 유지보수 집중)")
-        else:
-            st.warning(f"선택하신 '{clicked_dong}' 데이터가 성적표에 없습니다.")
+                    
+            # 💡 수정된 부분: else의 들여쓰기를 if len(match_df) > 0: 과 맞춤!
+            else:
+                st.warning(f"선택하신 '{clicked_dong}' 데이터가 성적표에 없습니다.")
