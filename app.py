@@ -8,16 +8,32 @@ import plotly.graph_objects as go
 # 1. 페이지 기본 설정 (와이드 레이아웃 유지)
 st.set_page_config(page_title="성남시 보행 위험도 대시보드", layout="wide")
 
+# 강제 다크모드 및 공문서 스타일의 리포트 박스 CSS 추가
 st.markdown("""
     <style>
     .stApp { background-color: #0E1117; color: #ffffff; }
     .block-container { padding-top: 2rem !important; }
     p, div, span, h1, h2, h3, h4, h5, h6, li { color: #ffffff; }
+    
+    /* 행정 리포트용 깔끔한 테두리 박스 스타일 */
+    .report-box {
+        border: 1px solid #555555;
+        padding: 20px;
+        border-radius: 4px;
+        background-color: #16181c;
+        margin-top: 10px;
+        margin-bottom: 20px;
+    }
+    .report-text {
+        font-size: 15px;
+        line-height: 1.8;
+        margin-bottom: 8px;
+    }
     </style>
 """, unsafe_allow_html=True)
 
-st.markdown('<h2 style="margin-top: 0px; margin-bottom: 5px;">성남시 보행 위험도 대시보드</h2>', unsafe_allow_html=True)
-st.info("지도 상의 지역을 클릭하시면 하단에 맞춤형 분석 리포트가 생성됩니다.")
+st.markdown('<h2 style="margin-top: 0px; margin-bottom: 5px;">■ 성남시 보행 위험도 분석 대시보드</h2>', unsafe_allow_html=True)
+st.markdown("> 지도 상의 행정동을 클릭하시면 하단에 맞춤형 진단 리포트가 생성됩니다.")
 
 @st.cache_data
 def load_data():
@@ -49,14 +65,14 @@ try:
     df = load_data()
     data_loaded = True
 except Exception as e:
-    st.error(f"데이터 로드 오류: {e}")
+    st.markdown(f"<div class='report-box'>데이터 로드 오류: {e}</div>", unsafe_allow_html=True)
     data_loaded = False
 
 try:
     gdf = load_map()
     map_loaded = True
 except Exception as e:
-    st.error("'BND_ADM_DONG_PG.shp' 파일과 짝꿍 파일들(.shx, .dbf, .prj)이 같은 폴더에 있는지 확인해주세요!")
+    st.markdown("<div class='report-box'>'BND_ADM_DONG_PG.shp' 파일과 연관 파일들이 같은 폴더에 있는지 확인 요망</div>", unsafe_allow_html=True)
     map_loaded = False
 
 if data_loaded and map_loaded:
@@ -112,8 +128,9 @@ if data_loaded and map_loaded:
             if len(match_df) > 0:
                 dong_data = match_df.iloc[0]
                 
-                st.subheader(f"[{clicked_dong}] 보행 안전 진단서")
-                st.markdown(f"### **종합 위험도 {int(dong_data['위험도 순위'])}위** (위험 점수: {dong_data['최종 보행 위험도 점수']}점)")
+                st.markdown("---")
+                st.markdown(f"### **■ [{clicked_dong}] 보행 안전 진단 리포트**")
+                st.markdown(f"**○ 종합 위험도: {int(dong_data['위험도 순위'])}위** (위험 지수: {dong_data['최종 보행 위험도 점수']}점)")
                 
                 def get_val(keywords):
                     for c in dong_data.index:
@@ -121,10 +138,6 @@ if data_loaded and map_loaded:
                             return float(dong_data[c])
                     return 0.0 
 
-                # =======================================================
-                # [논리 보완] 안전 시설과 CCTV는 점수가 높을수록 안전하므로, 
-                # 차트에 '위험도'로 그리기 위해 100에서 빼줍니다 (역산).
-                # =======================================================
                 safety_score = get_val(['안전'])
                 safety_lack_score = 100 - safety_score if safety_score > 0 else 0
                 
@@ -136,13 +149,13 @@ if data_loaded and map_loaded:
                     get_val(['골목길']),
                     get_val(['인구', '거주']),
                     get_val(['유발', '복지시설']),  
-                    cctv_lack_score,               # 역산된 CCTV 점수 적용
+                    cctv_lack_score,               
                     get_val(['적치물', '장애물']),
                     get_val(['연령', '노후', '나이', '건축물']),
-                    safety_lack_score              # 역산된 안전시설 점수 적용
+                    safety_lack_score              
                 ]
-            
-                # 공공기관 의사결정 대시보드 맞춤형 라벨링
+                
+                # 공공기관 맞춤형 지표 라벨링 적용
                 categories = [
                     '급경사 보행 취약도', 
                     '보차혼용 위험도', 
@@ -193,38 +206,38 @@ if data_loaded and map_loaded:
                 })
                 
                 # ==========================================
-                # 맞춤형 정책 제언 로직
+                # 격식 있는 정책 제언 (아이콘 제거 및 공문서화)
                 # ==========================================
-                st.markdown("### **💡 맞춤형 정책 제언**")
+                st.markdown("### **■ 맞춤형 정책 제언**")
                 
                 warnings = []
                 
                 if get_val(['기울기', '경사']) >= 70:
-                    warnings.append("🚨 **[지형 한계]** 급경사 구간 열선(발열매트) 및 미끄럼 방지 포장 최우선 검토")
+                    warnings.append("▶ **[지형 한계]** 급경사 구간 열선(발열매트) 및 미끄럼 방지 포장 최우선 검토 요망")
                 if get_val(['골목길']) >= 70:
-                    warnings.append("⚠️ **[보차혼용]** 차량 속도 저감 기법 및 보행자 우선도로 지정 필요")
+                    warnings.append("▶ **[보차혼용]** 차량 속도 저감 기법 도입 및 보행자 우선도로 지정 필요")
                 if get_val(['인구', '거주']) >= 70 or get_val(['유발', '복지시설']) >= 70:
-                    warnings.append("⚠️ **[교통약자 집중]** 노인 보호구역(Silver Zone) 지정 확대")
+                    warnings.append("▶ **[교통약자 집중]** 노인 보호구역(Silver Zone) 지정 확대 및 관리 강화")
                 if cctv_lack_score >= 70:
-                    warnings.append("⚠️ **[행정 사각지대]** 불법주차 단속용 CCTV 추가 배치 및 스마트 볼라드 설치")
+                    warnings.append("▶ **[행정 사각지대]** 불법주정차 단속용 CCTV 추가 배치 및 스마트 볼라드 설치")
                 if get_val(['적치물', '장애물']) >= 70:
-                    warnings.append("⚠️ **[보행 방해물]** 길거리 적치물 특별 단속 및 정비 사업 실시")
+                    warnings.append("▶ **[보행 방해물]** 가로 환경 개선을 위한 노상 적치물 특별 단속 실시")
                 if get_val(['연령', '노후', '나이', '건축물']) >= 70:
-                    warnings.append("⚠️ **[환경 노후도]** 어두운 골목길 스마트 안심 보안등 설치 요망")
+                    warnings.append("▶ **[환경 노후도]** 범죄 및 사고 예방을 위한 스마트 안심 보안등 설치 요망")
                 if safety_lack_score >= 70: 
-                    warnings.append("🚨 **[인프라 부재]** 보행자 펜스, 제설함 등 기초 안전 시설 확충 시급")
+                    warnings.append("▶ **[인프라 결핍]** 보행자 펜스, 제설함 등 기초 안전 시설 확충 시급")
                 
+                # HTML 박스 형태로 정갈하게 출력
+                st.markdown('<div class="report-box">', unsafe_allow_html=True)
                 if warnings:
                     for w in warnings:
-                        if "🚨" in w:
-                            st.error(w)
-                        else:
-                            st.warning(w)
+                        st.markdown(f"<div class='report-text'>{w}</div>", unsafe_allow_html=True)
                 else:
                     if safety_score >= 50 and cctv_score >= 50:
-                        st.success("✅ **[인프라 양호]** 현재의 보행 안전 인프라 유지보수 집중 및 모니터링")
+                        st.markdown("<div class='report-text'>▶ **[인프라 양호]** 현행 보행 안전 인프라 유지보수 및 지속적인 모니터링 요망</div>", unsafe_allow_html=True)
                     else:
-                        st.info("📊 전반적으로 보통 수준의 보행 환경을 보이고 있습니다.")
+                        st.markdown("<div class='report-text'>▶ 전반적으로 보통 수준의 보행 환경을 유지하고 있음</div>", unsafe_allow_html=True)
+                st.markdown('</div>', unsafe_allow_html=True)
                     
             else:
-                st.warning(f"선택하신 '{clicked_dong}' 데이터가 성적표에 없습니다.")
+                st.markdown(f"<div class='report-box'>선택하신 '{clicked_dong}' 행정동 데이터가 존재하지 않습니다.</div>", unsafe_allow_html=True)
