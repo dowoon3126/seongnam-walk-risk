@@ -21,7 +21,7 @@ st.markdown("""
         padding-top: 2rem !important;
     }
     /* HTML 요소들 글자색 흰색으로 강제 */
-    p, div, span, h1, h2, h3, h4, h5, h6 {
+    p, div, span, h1, h2, h3, h4, h5, h6, li {
         color: #ffffff;
     }
     </style>
@@ -31,13 +31,21 @@ st.markdown("""
 st.markdown('<h2 style="margin-top: 0px; margin-bottom: 5px;">성남시 보행 위험도 대시보드</h2>', unsafe_allow_html=True)
 st.info("지도 상의 지역을 클릭하시면 하단에 맞춤형 분석 리포트가 생성됩니다.")
 
-# 2. 데이터 불러오기 (한글 깨짐 방지)
+# 2. 데이터 불러오기 (한글 깨짐 방지 및 다중 파일명 지원)
 @st.cache_data
 def load_data():
-    try:
-        return pd.read_csv("score.csv", encoding='utf-8')
-    except UnicodeDecodeError:
-        return pd.read_csv("score.csv", encoding='euc-kr')
+    filenames = ["score.csv", "성남시_최종보행위험도_성적표_최종.csv", "성남시_최종보행위험도_성적표.csv"]
+    for fname in filenames:
+        try:
+            return pd.read_csv(fname, encoding='utf-8-sig')
+        except FileNotFoundError:
+            continue
+        except UnicodeDecodeError:
+            try:
+                return pd.read_csv(fname, encoding='euc-kr')
+            except Exception:
+                continue
+    raise FileNotFoundError("데이터 파일을 찾을 수 없습니다. 'score.csv' 파일이 폴더에 있는지 확인해주세요.")
 
 @st.cache_data
 def load_map():
@@ -52,7 +60,13 @@ def load_map():
     gdf = gdf.to_crs(epsg=4326)
     return gdf
 
-df = load_data()
+try:
+    df = load_data()
+    data_loaded = True
+except Exception as e:
+    st.error(f"데이터 로드 오류: {e}")
+    data_loaded = False
+
 try:
     gdf = load_map()
     map_loaded = True
@@ -60,7 +74,7 @@ except Exception as e:
     st.error("'BND_ADM_DONG_PG.shp' 파일과 짝꿍 파일들(.shx, .dbf, .prj)이 같은 폴더에 있는지 확인해주세요!")
     map_loaded = False
 
-if map_loaded:
+if data_loaded and map_loaded:
     # 코랩에서 찾았던 정확한 동네 이름 열(ADM_NM) 고정 적용
     map_col = 'ADM_NM'
         
@@ -115,7 +129,7 @@ if map_loaded:
         ).add_to(m)
         
         # 6. 화면 출력
-        map_output = st_folium(m, use_container_width=True, height=350)
+        map_output = st_folium(m, use_container_width=True, height=480)
         
     with col_info:
         clicked_dong = None
@@ -128,12 +142,43 @@ if map_loaded:
             if len(match_df) > 0:
                 dong_data = match_df.iloc[0]
                 
-                st.subheader(f"[{clicked_dong}] 진단서")
-                st.write(f"**종합 위험도 {dong_data['위험도 순위']}위** ({dong_data['최종 보행 위험도 점수']}점)")
+                st.subheader(f"[{clicked_dong}] 보행 안전 진단서")
+                st.markdown(f"### **종합 위험도 {int(dong_data['위험도 순위'])}위** (상위 점수: {dong_data['최종 보행 위험도 점수']}점)")
                 
-                # 방사형 차트 데이터 준비
-                categories = ['평균 기울기', '골목길 비율', '교통약자 거주 인구 밀도', '교통약자 유발 시설 밀도', '안전 시설 밀도']
-                values = [dong_data[c] for c in categories]
+                # =======================================================
+                # [안전장치] 컬럼명이 미세하게 달라도 작동하도록 키워드 매핑 함수
+                # =======================================================
+                def get_val(keyword):
+                    for c in dong_data.index:
+                        if keyword in c: return dong_data[c]
+                    return 0
+
+                # [허점 D 솔루션] 안전 시설은 '부족도'로 역산하여 시각화의 직관성 극대화
+                safety_score = get_val('안전 시설')
+                safety_lack_score = 100 - safety_score if safety_score > 0 else 0
+
+                # 방사형 차트 8개 카테고리 설정
+                categories = [
+                    '평균 기울기', 
+                    '골목길 비율', 
+                    '노인 인구 밀도', 
+                    '복지 시설 밀도', 
+                    '불법주정차 CCTV', 
+                    '보행 장애물 밀도', 
+                    '건축물 노후도',
+                    '안전 시설 (부족도)' # 직관성을 위한 역산
+                ]
+                
+                values = [
+                    get_val('기울기'),
+                    get_val('골목길'),
+                    get_val('인구'),
+                    get_val('시설'),
+                    get_val('CCTV'),
+                    get_val('적치물'),
+                    get_val('연령'),
+                    safety_lack_score
+                ]
                 
                 # 마지막 빨간 선분을 연결하기 위해 첫 번째 데이터를 맨 끝에 복사해서 붙임 (도형 닫기)
                 categories_closed = categories + [categories[0]]
@@ -162,31 +207,50 @@ if map_loaded:
                         ),
                         angularaxis=dict(
                             color='white',                  # 항목 이름 글자색을 흰색으로 유지
-                            tickfont=dict(size=10)          # [수정] 카테고리 글씨 크기를 10pt로 설정
+                            tickfont=dict(size=11)          # 지표 개수가 늘어나 폰트를 살짝 조정
                         )
                     ), 
                     showlegend=False, 
-                    margin=dict(l=80, r=80, t=40, b=40), # 좌우 여백 확보
+                    margin=dict(l=60, r=60, t=30, b=30), # 라벨이 잘리지 않도록 좌우 여백 확보
                     height=350
                 )
                 
                 # 차트 출력
                 st.plotly_chart(fig, use_container_width=True, config={
                     'displayModeBar': False, # 거슬리는 상단 메뉴바 숨김
-                    'staticPlot': True       # 🔒 차트를 찌그러지지 않는 이미지 모드로 고정
+                    'staticPlot': True       # 차트를 찌그러지지 않는 이미지 모드로 고정
                 })
                 
-                # 맞춤형 처방전 로직
-                st.markdown("**맞춤형 정책 제언**")
-                if dong_data['안전 시설 밀도'] < 30:
-                    st.error("**[안전 비상]** 제설함 및 보행자 펜스 확충 시급")
-                if dong_data['평균 기울기'] >= 70:
-                    st.warning("**[지형 한계]** 열선(발열매트) 설치 우선 검토")
-                if dong_data['골목길 비율'] >= 80:
-                    st.warning("**[보차혼용]** 미끄럼 방지 포장 및 스마트 보안등 필요")
-                if dong_data['안전 시설 밀도'] >= 50 and dong_data['평균 기울기'] < 50:
-                    st.success("인프라 양호 구역 (현행 유지보수 집중)")
+                # ==========================================
+                # [신규] 8개 지표 기반 맞춤형 처방전 (Custom Policy)
+                # ==========================================
+                st.markdown("### **💡 맞춤형 정책 제언**")
+                
+                # 지표별 조건부 출력 (점수가 높은 70점 이상인 것들 위주로 경고)
+                if get_val('기울기') >= 70:
+                    st.error("🚨 **[지형 한계]** 급경사 구간 열선(발열매트) 및 미끄럼 방지 포장 최우선 검토")
+                
+                if get_val('골목길') >= 70:
+                    st.warning("⚠️ **[보차혼용]** 차량 속도 저감 기법(Traffic Calming) 및 보행자 우선도로 지정 필요")
                     
-            # 데이터가 없을 때만 경고 문구 출력
+                if get_val('인구') >= 70 or get_val('시설') >= 70:
+                    st.warning("⚠️ **[교통약자 집중]** 노인 보호구역(Silver Zone) 확대 및 보행 신호 시간 연장 추진")
+
+                if get_val('CCTV') >= 70:
+                    st.warning("⚠️ **[불법주차 상습]** 불법주정차 단속 강화 및 사각지대 반사경, 시선유도봉 확충")
+                    
+                if get_val('적치물') >= 70:
+                    st.warning("⚠️ **[보행 장애물]** 가로 정비 특별 단속 및 적치물 방지용 스마트 플랜터 설치")
+                    
+                if get_val('연령') >= 70:
+                    st.warning("⚠️ **[환경 노후도]** 셉테드(CPTED) 환경 개선 기법 적용 및 스마트 안심 보안등 설치 요망")
+                    
+                if safety_score < 30: # 부족도가 아닌 원본 점수 기준으로 측정
+                    st.error("🚨 **[안전 인프라 부재]** 야간 조명, 제설함, 보행자 펜스 등 기초 안전 시설 확충 시급")
+                
+                # 모든 지표가 양호할 경우 (경고 메시지가 하나도 없을 때를 대비)
+                if all(get_val(col) < 70 for col in ['기울기', '골목길', '인구', '시설', 'CCTV', '적치물', '연령']) and safety_score >= 50:
+                    st.success("✅ **[인프라 양호]** 현재의 보행 안전 인프라 유지보수 집중 및 모니터링")
+                    
             else:
                 st.warning(f"선택하신 '{clicked_dong}' 데이터가 성적표에 없습니다.")
